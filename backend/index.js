@@ -1,8 +1,9 @@
-import express from "express"
-import mongoose from "mongoose"
-import dotenv from "dotenv"
-import cors from "cors"
-import cookieParser from "cookie-parser"
+const express = require("express")
+const mongoose = require("mongoose")
+const cors = require("cors")
+const cookieParser = require("cookie-parser")
+const dotenv = require("dotenv")
+
 
 dotenv.config()
 
