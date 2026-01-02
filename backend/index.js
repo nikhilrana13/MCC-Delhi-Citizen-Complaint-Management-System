@@ -4,6 +4,7 @@ const cors = require("cors")
 const cookieParser = require("cookie-parser")
 const dotenv = require("dotenv")
 const authRoutes = require('./Routes/AuthRoutes');
+const complaintRoutes = require('./Routes/ComplaintRoutes')
 
 
 dotenv.config()
@@ -22,6 +23,7 @@ app.use(cookieParser())
 
 // Routes
 app.use('/api/auth', authRoutes); 
+app.use('/api/complaint',complaintRoutes)
 
 
 

@@ -8,7 +8,7 @@ const IsgoogleAuth = async(req,res,next) => {
     try {
          const authHeader = req.headers.authorization
          if(!authHeader || !authHeader.startsWith("Bearer ")){
-            return Response(res,401,"Unauthorized")
+            return Response(res,401,"Unauthorized or invalid token")
          }
          const token = authHeader.split(" ")[1]
 

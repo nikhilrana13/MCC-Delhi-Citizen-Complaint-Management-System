@@ -69,11 +69,11 @@ const jwt = require("jsonwebtoken")
             if(isMc){
                 user.isVerified = true
                 await user.save()
-                return Response(res,200,"Login Successfully",McMapper(user))
+                return Response(res,200,"Login Successfully",{ user:McMapper(user),token})
             }else{
                 user.isVerified = true
                 await user.save()
-                return Response(res,200,"Login Successfully",CitizenMapper(user))
+                return Response(res,200,"Login Successfully",{user:CitizenMapper(user),token})
             }
         }
     } catch (error) {
@@ -81,7 +81,6 @@ const jwt = require("jsonwebtoken")
         return Response(res,500,"Internal server error")
     }
  }
-
 //  Login with google using firebase
  const LoginWithgoogle = async(req,res)=>{
     try {
@@ -109,6 +108,5 @@ const jwt = require("jsonwebtoken")
          return Response(res,500,"Internal server error")
     }
  }
-
 
  module.exports = {RegisterCitizen,Login,LoginWithgoogle}
