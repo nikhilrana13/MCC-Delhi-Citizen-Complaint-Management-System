@@ -5,12 +5,15 @@ const cookieParser = require("cookie-parser")
 const dotenv = require("dotenv")
 const authRoutes = require('./Routes/AuthRoutes');
 const complaintRoutes = require('./Routes/ComplaintRoutes')
+const notificationRoute = require('./Routes/NotificationRoute.js')
+const http = require("http")
+const {initializeSocket} = require("./Utils/SocketService.js")
 
 
 dotenv.config()
 
 const PORT = process.env.PORT || 5000 
-const app = express()
+const app = express() 
 
 
 // middleware 
@@ -19,11 +22,16 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
+// create socket io server 
+const server = http.createServer(app)
+const io = initializeSocket(server)
+
 
 
 // Routes
 app.use('/api/auth', authRoutes); 
 app.use('/api/complaint',complaintRoutes)
+app.use('/api/notification',notificationRoute)
 
 
 
@@ -39,6 +47,6 @@ mongoose.connect(process.env.MONGO_URL).then(()=>{
 //     res.send("server is running")
 // })
 
-app.listen(PORT,(()=>{
+server.listen(PORT,(()=>{
     console.log(`Server is running on ${PORT}`)
 }))

@@ -1,95 +1,251 @@
-const sharp = require("sharp")
-const cloudinary = require("../Config/cloudinary")
-const Citizen = require("../Models/CitizenModel")
-const Complaint = require("../Models/ComplaintModel")
-const Response = require("../Utils/ResponseHandler")
-const McModel = require("../Models/McModel")
-
+const sharp = require("sharp");
+const cloudinary = require("../Config/cloudinary");
+const Citizen = require("../Models/CitizenModel");
+const Complaint = require("../Models/ComplaintModel");
+const Response = require("../Utils/ResponseHandler");
+const McModel = require("../Models/McModel");
+const Notification = require("../Models/NotificationModel");
+const sendPushNotification = require("../Config/sendPushNotification");
+const {getIO} = require("../Utils/SocketService.js")
 
 
 
 // Citizen complaint api's
-const CreateComplaint = async(req,res)=>{
-    try {
-        const citizenId = req.user 
-        let {title,description,address,category} = req.body 
-        // console.log("req body",req.body)
-        const files = req.files 
-         // Validation: Check if all required fields are present
-        if(!title || !description || !address || !category){
-            return Response(res,403,"All fields are required")
-        }
-        // parse address to object if it comes as string
-        if(typeof address === "string"){
-            address = JSON.parse(address)
-        }
-        //check user exists or not 
-        const user = await Citizen.findById(citizenId)
-        if(!user){
-            return Response(res,404,"User not found")
-        }
-        // find Mc
-        const Mcadmin = await McModel.findOne({role:"mc"})
-
-        // if have any images then upload to cloudinary and give url
-        let imagesurl = []
-        if(files && files.length > 0){
-            for(let file of files ){
-                try {
-                    const optimizedImage = await sharp(file.buffer).resize({width:500,height:400}).webp({quality:80}).toBuffer();
-                    const imagebase64 = `data:image/webp;base64,${optimizedImage.toString("base64")}`
-
-                    const cloudResponse = await cloudinary.uploader.upload(imagebase64,{
-                        folder:"mcc-delhi-complaints",
-                        resource_type:"image"
-                    });
-                    imagesurl.push(cloudResponse.secure_url);
-                } catch (error) {
-                    console.log("cloudinary upload error",error)
-                    return Response(res,500,"Image upload failed")
-                }
-            }
-        }
-        // create complaint
-        const complaint = await Complaint.create({
-            citizenId:citizenId,
-            mcId:Mcadmin._id,
-            title,
-            description,
-            address,
-            category,
-            images:imagesurl
-        })
-        // update complaint id to citizen mycomplaints array 
-        user.mycomplaints.push(complaint._id)
-        await user.save()
-        // update complaint id to mc allcomplaints array
-        Mcadmin.allcomplaints.push(complaint._id)
-        await Mcadmin.save()
-        return Response(res,201,"Complaint Created Successfully",complaint)
-    } catch (error) {
-        console.log("failed to create complaint",error)
-        return Response(res,500,"Internal server error")
+const CreateComplaint = async (req, res) => {
+  try {
+    const io = getIO()
+    const citizenId = req.user;
+    let { title, description, address, category } = req.body;
+    // console.log("req body",req.body)
+    const files = req.files;
+    // Validation: Check if all required fields are present
+    if (!title || !description || !address || !category) {
+      return Response(res, 403, "All fields are required");
     }
-}
+    // parse address to object if it comes as string
+    if (typeof address === "string") {
+      address = JSON.parse(address);
+    }
+    //check user exists or not
+    const user = await Citizen.findById(citizenId);
+    if (!user) {
+      return Response(res, 404, "User not found");
+    }
+    // find Mc
+    const Mcadmin = await McModel.findOne({ role: "mc" });
+
+    // if have any images then upload to cloudinary and give url
+    let imagesurl = [];
+    if (files && files.length > 0) {
+      for (let file of files) {
+        try {
+          const optimizedImage = await sharp(file.buffer)
+            .resize({ width: 500, height: 400 })
+            .webp({ quality: 80 })
+            .toBuffer();
+          const imagebase64 = `data:image/webp;base64,${optimizedImage.toString(
+            "base64"
+          )}`;
+
+          const cloudResponse = await cloudinary.uploader.upload(imagebase64, {
+            folder: "mcc-delhi-complaints",
+            resource_type: "image",
+          });
+          imagesurl.push(cloudResponse.secure_url);
+        } catch (error) {
+          console.log("cloudinary upload error", error);
+          return Response(res, 500, "Image upload failed");
+        }
+      }
+    }
+    // create complaint
+    const complaint = await Complaint.create({
+      citizenId: citizenId,
+      mcId: Mcadmin._id,
+      title,
+      description,
+      address,
+      category,
+      images: imagesurl,
+    });
+    // update complaint id to citizen mycomplaints array
+    user.mycomplaints.push(complaint._id);
+    await user.save();
+    // update complaint id to mc allcomplaints array
+    Mcadmin.allcomplaints.push(complaint._id);
+    await Mcadmin.save();
+    // notification sent to citizen and save to db
+    // DB notification (citizen)
+    await Notification.create({
+      complaintId: complaint._id,
+      receiverId: citizenId,
+      receiverRole: "citizen",
+      title: "Complaint Registered",
+      message:
+        "Your complaint has been registered successfully. It will be resolved within 48 hours.",
+    });
+    // Push notification (citizen)
+    await sendPushNotification(
+      user.fcmtoken,
+      "Complaint Registered",
+      "Your complaint has been registered successfully. It will be resolved within 48 hours.",
+      {
+        complaintId: complaint._id.toString(),
+        role: "citizen",
+      }
+    );
+    // socket citizen notification
+    io.to(citizenId.toString()).emit("notification",{
+        title:"Complaint Registered",
+        message:"Your complaint has been registered successfully. It will be resolved within 48 hours.",
+    })
+    // DB notification (admin)
+    await Notification.create({
+      complaintId: complaint._id,
+      receiverId: Mcadmin._id,
+      receiverRole: "mc-admin",
+      title: "New Complaint Received",
+      message:
+        "A new complaint has been received. Please review and take action.",
+    });
+
+    // Push notification (admin)
+    await sendPushNotification(
+      Mcadmin.fcmtoken,
+      "New Complaint Received",
+      "A new complaint has been received. Please review and take action.",
+      {
+        complaintId: complaint._id.toString(),
+        role: "mc-admin",
+      }
+    );
+    // mc admin push notification
+    io.to(Mcadmin._id.toString()).emit("notification",{
+        title:"New Complaint Received",
+        message:"A new complaint has been received. Please review and take action",
+    })
+
+    return Response(res, 201, "Complaint Created Successfully", complaint);
+  } catch (error) {
+    console.log("failed to create complaint", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
 // Get each Citizen complaint's
-const EachCitizenComplaints = async(req,res)=>{
-    try {
-        const citizenId = req.user 
-        const user = await Citizen.findById(citizenId)
-        if(!user){
-            return Response(res,404,"User not found")
-        }
-        const complaints = await Complaint.find({citizenId:citizenId}).sort({createdAt: -1})
-        if(complaints.length === 0){
-            return Response(res,200,"No Complaints found",complaints)
-        }
-        return Response(res,200,"Complaints found",complaints)
-    } catch (error) {
-        console.log("failed to get complaints",error)
-        return Response(res,500,"Internal server error")
+const EachCitizenComplaints = async (req, res) => {
+  try {
+    const citizenId = req.user;
+    const user = await Citizen.findById(citizenId);
+    if (!user) {
+      return Response(res, 404, "User not found");
     }
-}
+    const complaints = await Complaint.find({ citizenId: citizenId }).sort({
+      createdAt: -1,
+    });
+    if (complaints.length === 0) {
+      return Response(res, 200, "No Complaints found", complaints);
+    }
+    return Response(res, 200, "Complaints found", complaints);
+  } catch (error) {
+    console.log("failed to get complaints", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
 
-module.exports = {CreateComplaint,EachCitizenComplaints}
+// Mc Admin complaint api's
+const FetchAllComplaints = async (req, res) => {
+  try {
+    const mcId = req.user;
+    const { category, status, page, limit } = req.query;
+    const pageNumber = parseInt(page || 1);
+    const limitNumber = parseInt(limit || 10);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const Mcadmin = await McModel.findById(mcId);
+    if (!Mcadmin) {
+      return Response(res, 404, "Mc Admin not found");
+    }
+    let filters = { mcId: mcId };
+    if (category) {
+      filters.category = category;
+    }
+    if (status) {
+      filters.status = status;
+    }
+    const complaints = await Complaint.find(filters)
+      .skip(skip)
+      .limit(limitNumber)
+      .populate("citizenId", "name email phonesuffix phonenumber ");
+    const totalcomplaints = await Complaint.countDocuments(filters);
+    const totalPages = Math.ceil(totalcomplaints / limitNumber);
+
+    if (complaints.length === 0) {
+      return Response(res, 200, "No Complaints found", complaints);
+    }
+    return Response(res, 200, "Complaints found", {
+      complaints,
+      pagination: {
+        totalPages,
+        totalcomplaints,
+        currentPage: pageNumber,
+        limit: limitNumber,
+      },
+    });
+  } catch (error) {
+    console.log("failed to get complaints", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
+
+const UpdateStatusofComplaint = async (req, res) => {
+  try {
+    const io = getIO()
+    const mcId = req.user;
+    const complaintId = req.params.id;
+    const { status } = req.body;
+    const allowedStatus = [
+      "pending",
+      "review",
+      "progress",
+      "completed",
+      "cancelled",
+    ];
+    if (!allowedStatus.includes(status)) {
+      return Response(res, 400, "Invalid status value");
+    }
+    const Mcadmin = await McModel.findById(mcId);
+    if (!Mcadmin) {
+      return Response(res, 404, "Mc Admin not found");
+    }
+    const complaint = await Complaint.findOneAndUpdate(
+      { _id: complaintId, mcId: mcId },
+      { status: status },
+      { new: true }
+    );
+    if (!complaint) {
+      return Response(res, 404, "Complaint not found");
+    }
+    //socket emit on status change
+    io.to(complaint?.citizenId?.toString()).emit("notification",{
+        title: "Complaint Status Updated",
+        message: `Your complaint status has been updated to "${status}".`,
+    }) 
+    return Response(
+      res,
+      200,
+      "Complaint Status Update successfully",
+      complaint
+    );
+  } catch (error) {
+    console.log("failed to update complaints", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
+
+module.exports = {
+  CreateComplaint,
+  EachCitizenComplaints,
+  FetchAllComplaints,
+  UpdateStatusofComplaint,
+};
 

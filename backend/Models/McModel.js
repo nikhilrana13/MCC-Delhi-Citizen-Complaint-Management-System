@@ -8,6 +8,7 @@ const McSchema = mongoose.Schema({
     isVerified:{type:Boolean,default:false},
     profilepic:{type:String,default:""},
     allcomplaints:[{type:mongoose.Schema.Types.ObjectId,ref:"Complaint"}],
+    fcmtoken: { type: String, default: null}
 },{timestamps:true})
 
 const McModel = mongoose.model("McModel",McSchema)

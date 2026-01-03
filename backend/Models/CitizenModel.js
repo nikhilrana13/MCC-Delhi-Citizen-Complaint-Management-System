@@ -12,7 +12,8 @@ const CitizenSchema = mongoose.Schema({
     mycomplaints:[{type:mongoose.Schema.Types.ObjectId,ref:"Complaints"}],
     role:{type:String,default:"citizen"},
     isVerified:{type:Boolean,default:false},
-    profilepic:{type:String,default:""}
+    profilepic:{type:String,default:""},
+    fcmtoken: {type: String,default: null}
 },{timestamps:true})
 
 const Citizen = mongoose.model("Citizen",CitizenSchema)
