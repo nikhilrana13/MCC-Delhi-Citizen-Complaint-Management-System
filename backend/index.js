@@ -6,6 +6,8 @@ const dotenv = require("dotenv")
 const authRoutes = require('./Routes/AuthRoutes');
 const complaintRoutes = require('./Routes/ComplaintRoutes')
 const notificationRoute = require('./Routes/NotificationRoute.js')
+const citizenRoute = require('./Routes/CitizenRoutes')
+const mcadminRoute = require('./Routes/McAdminRoute')
 const http = require("http")
 const {initializeSocket} = require("./Utils/SocketService.js")
 
@@ -32,9 +34,8 @@ const io = initializeSocket(server)
 app.use('/api/auth', authRoutes); 
 app.use('/api/complaint',complaintRoutes)
 app.use('/api/notification',notificationRoute)
-
-
-
+app.use('/api/citizen',citizenRoute)
+app.use('/api/mcadmin',mcadminRoute)
 
 // connect to database 
 mongoose.connect(process.env.MONGO_URL).then(()=>{

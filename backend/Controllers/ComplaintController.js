@@ -127,7 +127,7 @@ const CreateComplaint = async (req, res) => {
 
     return Response(res, 201, "Complaint Created Successfully", complaint);
   } catch (error) {
-    console.log("failed to create complaint", error);
+    console.error("failed to create complaint", error);
     return Response(res, 500, "Internal server error");
   }
 };
@@ -147,11 +147,31 @@ const EachCitizenComplaints = async (req, res) => {
     }
     return Response(res, 200, "Complaints found", complaints);
   } catch (error) {
-    console.log("failed to get complaints", error);
+    console.error("failed to get complaints", error);
     return Response(res, 500, "Internal server error");
   }
 };
 
+const CitizenComplaintsStatus = async(req,res)=>{
+    try {
+        const citizenId = req.user 
+        const citizen = await Citizen.findById(citizenId)
+        if(!citizen){
+          return Response(res,404,"User not found")
+        }
+        const total = await Complaint.countDocuments({citizenId})
+        const pending= await Complaint.countDocuments({citizenId,status:"pending"})
+        const resolved = await Complaint.countDocuments({citizenId,status:"completed"})
+        const inprogress = await Complaint.countDocuments({citizenId,status:"progress"})
+
+        return Response(res,200,"Complaints status",{
+          total,pending,resolved,inprogress
+        })
+    } catch (error) {
+      console.error("failed to get complaints status",error)
+      return Response(res,500,"Internal server error")
+    }
+}
 // Mc Admin complaint api's
 const FetchAllComplaints = async (req, res) => {
   try {
@@ -175,6 +195,7 @@ const FetchAllComplaints = async (req, res) => {
     const complaints = await Complaint.find(filters)
       .skip(skip)
       .limit(limitNumber)
+      .sort({createdAt:-1})
       .populate("citizenId", "name email phonesuffix phonenumber ");
     const totalcomplaints = await Complaint.countDocuments(filters);
     const totalPages = Math.ceil(totalcomplaints / limitNumber);
@@ -192,7 +213,7 @@ const FetchAllComplaints = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("failed to get complaints", error);
+    console.error("failed to get complaints", error);
     return Response(res, 500, "Internal server error");
   }
 };
@@ -237,15 +258,36 @@ const UpdateStatusofComplaint = async (req, res) => {
       complaint
     );
   } catch (error) {
-    console.log("failed to update complaints", error);
+    console.error("failed to update complaints", error);
     return Response(res, 500, "Internal server error");
   }
 };
+const McadminComplaintsStatus = async(req,res)=>{
+    try {
+        const mcId = req.user 
+        const mcadmin = await McModel.findById(mcId)
+        if(!mcadmin){
+          return Response(res,404,"User not found")
+        }
+        const total = await Complaint.countDocuments({mcId})
+        const pending= await Complaint.countDocuments({mcId,status:"pending"})
+        const resolved = await Complaint.countDocuments({mcId,status:"completed"})
+        const inprogress = await Complaint.countDocuments({mcId,status:"progress"})
+
+        return Response(res,200,"Complaints status",{
+          total,pending,resolved,inprogress
+        })
+    } catch (error) {
+      console.error("failed to get mc complaints status",error)
+      return Response(res,500,"Internal server error")
+    }
+}
 
 module.exports = {
   CreateComplaint,
   EachCitizenComplaints,
   FetchAllComplaints,
   UpdateStatusofComplaint,
+  CitizenComplaintsStatus,
+  McadminComplaintsStatus
 };
-

@@ -5,7 +5,7 @@ const CitizenMapper = (citizen)=>({
     phonesuffix:citizen.phonesuffix,
     phonenumber:citizen.phonenumber,
     profileimage:citizen.profilepic,
-    complaints:citizen.allcomplaints,
+    complaints:citizen.mycomplaints,
     role:citizen.role,
     verified:citizen.isVerified,
     createdAt:citizen.createdAt

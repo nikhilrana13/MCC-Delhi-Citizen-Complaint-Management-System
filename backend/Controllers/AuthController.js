@@ -32,7 +32,7 @@ const jwt = require("jsonwebtoken")
             return Response(res,409,"User Already Exists")
         }
     } catch (error) {
-        console.log("failed to sign up",error)
+        console.error("failed to sign up",error)
         return Response(res,500,"Internal server error")
     }
  }
@@ -77,7 +77,7 @@ const jwt = require("jsonwebtoken")
             }
         }
     } catch (error) {
-        console.log("failed to Login",error)
+        console.error("failed to Login",error)
         return Response(res,500,"Internal server error")
     }
  }
@@ -104,9 +104,31 @@ const jwt = require("jsonwebtoken")
             return Response(res,200,"Login successfully",CitizenMapper(user))
 
     } catch (error) {
-        console.log("failed to log in with google",error)
+        console.error("failed to log in with google",error)
          return Response(res,500,"Internal server error")
     }
  }
 
- module.exports = {RegisterCitizen,Login,LoginWithgoogle}
+// logout 
+ const Logout = async(req,res)=>{
+    try {
+        const userId = req.user
+        const role = req.role 
+      
+         const model = role === 'citizen' ? Citizen : McModel
+        //  remove fcm token on logout
+         await model.findByIdAndUpdate(userId,{
+            $unset:{fcmtoken:""}
+         })
+         
+         res.clearCookie("token",{httpOnly:true,secure:true,sameSite:"none"})
+         return Response(res,200,"Logout successfully")
+    } catch (error) {
+         console.error("failed to Logut",error)
+        return Response(res,500,"Internal server error")
+    }
+ }
+
+
+ module.exports = {RegisterCitizen,Login,LoginWithgoogle,Logout}
+

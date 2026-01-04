@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const { RegisterCitizen, Login, LoginWithgoogle } = require('../Controllers/AuthController');
+const { RegisterCitizen, Login, LoginWithgoogle, Logout } = require('../Controllers/AuthController');
 const IsgoogleAuth = require('../Middleware/isGoogleAuth');
+const IsAnyAuth = require('../Middleware/IsAnyAuth');
 
 
 // Register citizen route with validation
@@ -36,6 +37,8 @@ router.post('/login', [
 
 // Login with google
 router.post('google/login',IsgoogleAuth,LoginWithgoogle)
+// logout
+router.get('/logout',IsAnyAuth,Logout)
 
 
 

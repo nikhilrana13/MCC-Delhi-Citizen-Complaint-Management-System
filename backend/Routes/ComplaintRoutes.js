@@ -1,7 +1,7 @@
 const express =  require("express")
 const router = express.Router()
 const multer = require("multer")
-const {CreateComplaint,EachCitizenComplaints, FetchAllComplaints, UpdateStatusofComplaint} = require("../Controllers/ComplaintController")
+const {CreateComplaint,EachCitizenComplaints, FetchAllComplaints, UpdateStatusofComplaint, CitizenComplaintsStatus, McadminComplaintsStatus} = require("../Controllers/ComplaintController")
 const IsCitizenAuth = require("../Middleware/IsCitizenAuth")
 const IsMcAdminAuth = require("../Middleware/IsMcAdminAuth")
 
@@ -12,9 +12,12 @@ const upload = multer({storage})
 // citizen complaints routes
 router.post("/create-complaint",upload.array("images",4),IsCitizenAuth,CreateComplaint)
 router.get("/my-complaints",IsCitizenAuth,EachCitizenComplaints)
+router.get("/citizen/status",IsCitizenAuth,CitizenComplaintsStatus)
 // McAdmin complaints routes
 router.get("/all-complaints",IsMcAdminAuth,FetchAllComplaints)
+router.get("/mcadmin/status",IsMcAdminAuth,McadminComplaintsStatus)
 router.put("/update-status/:id",IsMcAdminAuth,UpdateStatusofComplaint)
+
 
 
 module.exports = router
