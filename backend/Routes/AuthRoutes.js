@@ -4,6 +4,7 @@ const { body } = require('express-validator');
 const { RegisterCitizen, Login, LoginWithgoogle, Logout } = require('../Controllers/AuthController');
 const IsgoogleAuth = require('../Middleware/isGoogleAuth');
 const IsAnyAuth = require('../Middleware/IsAnyAuth');
+const AuthMiddleware = require("../Middleware/AuthMiddleware")
 
 
 // Register citizen route with validation
@@ -36,9 +37,9 @@ router.post('/login', [
 ], Login);
 
 // Login with google
-router.post('google/login',IsgoogleAuth,LoginWithgoogle)
+router.post('/google-login',IsgoogleAuth,LoginWithgoogle)
 // logout
-router.get('/logout',IsAnyAuth,Logout)
+router.get('/logout',AuthMiddleware ,IsAnyAuth,Logout)
 
 
 

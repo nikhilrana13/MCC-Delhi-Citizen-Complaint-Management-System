@@ -9,8 +9,10 @@ const useAfterAuthSuccess = () => {
         try {
             // join socket room 
             socket.emit("join",userId)
-            // get fcm token 
+            // console.log("userid",userId)
+            // get fcm token
             const token = await getFCMToken()
+            // console.log("fcm token",token)
             if(token){
                 await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notification/save-token`,{token},{
                     headers:{

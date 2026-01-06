@@ -84,7 +84,8 @@ const jwt = require("jsonwebtoken")
 //  Login with google using firebase
  const LoginWithgoogle = async(req,res)=>{
     try {
-        const {uid,name,email,picture} = req.user 
+        const {uid,name,email,picture} = req.user
+        //  console.log("req.user",req.user) 
         // Normalize email
         const normalizedEmail = email.toLowerCase().trim()
         let user = await Citizen.findOne({email: normalizedEmail})
@@ -97,12 +98,13 @@ const jwt = require("jsonwebtoken")
                 profilepic: picture
             })
         }
-         console.log("user logged in with google",user)
+            // console.log("user logged in with google",user)
+            user.isVerified = true
+            await user.save()
          // generate jwt
-            const token = jwt.sign({id:user._id,role:user.role},process.env.JWT_SECRET_KEY,{expiresIn:"1d"})
-            res.cookie("token",token,{httpOnly:true,secure:false,sameSite:"none"})
-            return Response(res,200,"Login successfully",CitizenMapper(user))
-
+         const token = jwt.sign({id:user._id,role:user.role},process.env.JWT_SECRET_KEY,{expiresIn:"1d"})
+         res.cookie("token",token,{httpOnly:true,secure:false,sameSite:"none"})
+         return Response(res,200,"Login successfully",{user:CitizenMapper(user),token}) 
     } catch (error) {
         console.error("failed to log in with google",error)
          return Response(res,500,"Internal server error")
@@ -120,7 +122,6 @@ const jwt = require("jsonwebtoken")
          await model.findByIdAndUpdate(userId,{
             $unset:{fcmtoken:""}
          })
-         
          res.clearCookie("token",{httpOnly:true,secure:true,sameSite:"none"})
          return Response(res,200,"Logout successfully")
     } catch (error) {

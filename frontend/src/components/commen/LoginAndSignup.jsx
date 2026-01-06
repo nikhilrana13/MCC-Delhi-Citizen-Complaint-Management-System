@@ -1,12 +1,23 @@
 "use client"
+import { auth, GoogleProvider } from '../../config/firebase'
+import useAfterAuthSuccess from '../../hooks/useAfterAuthSuccess'
+import { SetUser } from '../../redux/AuthSlice'
+import axios from 'axios'
+import { signInWithPopup, signOut } from 'firebase/auth'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
 import { BiArrowFromLeft, BiArrowFromRight, BiLock, BiUser } from 'react-icons/bi'
 import { MdEmail } from 'react-icons/md'
 import { RiGovernmentLine } from 'react-icons/ri'
+import { TbLoader2 } from 'react-icons/tb'
+import { useDispatch } from 'react-redux'
 
 
 const LoginAndSignup = () => {
   const [Step, setStep] = useState(1)
+  const [loading, setLoading] = useState(false)
+  const dispatch = useDispatch()
   const [input, setInput] = useState({
     name: "",
     email: "",
@@ -15,7 +26,8 @@ const LoginAndSignup = () => {
   const [Errors, SetErrors] = useState({})
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
-
+  const { afterAuthSuccess } = useAfterAuthSuccess()
+  const router = useRouter()
 
   const Validation = () => {
     let errors = {}
@@ -37,20 +49,37 @@ const LoginAndSignup = () => {
     // remove errors on typing
     SetErrors(prev => ({ ...prev, [name]: "" }))
   }
-
   const onSignUp = async () => {
     // Check if all the fields are valid
     if (!Validation()) return
-
     // Create a new user object
     const data = {
       name: input.name,
       email: input.email,
       password: input.password
     }
-
     // Log the user data for debugging
-    console.log("data", data)
+    // console.log("data", data)
+    try {
+      setLoading(true)
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`, data, {
+        withCredentials: true
+      })
+      if (response.data) {
+        toast.success(response?.data?.message)
+        setInput({
+          name: "",
+          email: "",
+          password: "",
+        })
+        setStep(2)
+      }
+    } catch (error) {
+      console.log("failed to sign up", error)
+      toast.error(error?.response?.data?.message || "Internal server error")
+    } finally {
+      setLoading(false)
+    }
   }
   const onLogin = async () => {
     if (!Validation()) return
@@ -58,9 +87,63 @@ const LoginAndSignup = () => {
       email: input.email,
       password: input.password
     }
-    console.log("data", data)
+    // console.log("data", data)
+    try {
+      setLoading(true)
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, data, {
+        withCredentials: true
+      })
+      // console.log("response", response)
+      if (response.data) {
+        toast.success(response?.data?.message)
+        localStorage.setItem("token", response?.data?.data?.token)
+        const user = response?.data?.data?.user
+        dispatch(SetUser(user))
+        await afterAuthSuccess(user?.id)
+        if (user?.role === "citizen") {
+          router.replace("/citizen/dashboard")
+        } else {
+          router.replace("/mcadmin/dashboard")
+        }
+      }
+    } catch (error) {
+      console.log("failed to Login", error)
+      toast.error(error?.response?.data?.message || "Internal server error")
+    } finally {
+      setLoading(false)
+    }
   }
-
+  const handleLoginWithgoogle = async () => {
+    try {
+      await signOut(auth)
+      const result = await signInWithPopup(auth, GoogleProvider)
+      const token = await result.user.getIdToken();
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google-login`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }, withCredentials: true
+      })
+      if (response.data) {
+        localStorage.setItem("token", response?.data?.data?.token)
+        const user = response?.data?.data?.user
+        dispatch(SetUser(user))
+        await afterAuthSuccess(user?.id)
+        if (user?.role === "citizen") {
+          router.replace("/citizen/dashboard")
+        } else {
+          router.replace("/mcadmin/dashboard")
+        }
+      }
+    } catch (error) {
+      console.log("failed to Login", error)
+      if (error.code !== "auth/cancelled-popup-request") {
+        toast.error("Google login failed");
+        console.error(error);
+      }
+      toast.error(error?.response?.data?.message || "Internal server error")
+    }
+  }
   return (
     <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
       {/* Logo */}
@@ -145,9 +228,14 @@ const LoginAndSignup = () => {
       </div>
 
       {/* Sign In Button */}
-      <button onClick={() => { Step === 1 ? onLogin() : onSignUp() }} className="w-full mt-2 text-[1rem] cursor-pointer items-center justify-center flex gap-2 bg-[#0A3D62] text-white py-2 rounded-md font-medium hover:bg-[#08314e] transition">
-        {Step === 1 ? "Sign In" : "Sign up"}
-        <BiArrowFromLeft />
+      <button onClick={() => { Step === 1 ? onLogin() : onSignUp() }} className={`w-full mt-2 text-[1rem] cursor-pointer items-center justify-center flex gap-2 bg-[#0A3D62] text-white py-2 rounded-md font-medium hover:bg-[#08314e] transition ${loading ? "opacity-70 cursor-not-allowed" : ""} `}>
+        {
+          loading ? (
+            <TbLoader2 className='animate-spin mx-auto w-5 h-5' />
+          ) : (
+            Step === 1 ? "Sign In  " : "Sign up"
+          )
+        }
       </button>
 
       {/* Divider */}
@@ -161,7 +249,7 @@ const LoginAndSignup = () => {
               </span>
               <div className="flex-1 h-px bg-gray-200" />
             </div>
-            <button className="w-full border py-2 border-gray-300 cursor-pointer rounded-md flex items-center justify-center gap-2 hover:bg-gray-50">
+            <button onClick={() => handleLoginWithgoogle()} className="w-full border py-2 border-gray-300 cursor-pointer rounded-md flex items-center justify-center gap-2 hover:bg-gray-50">
               <img
                 src="https://www.svgrepo.com/show/475656/google-color.svg"
                 alt="google"

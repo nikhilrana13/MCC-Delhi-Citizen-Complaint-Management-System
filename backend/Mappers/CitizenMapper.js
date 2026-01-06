@@ -1,5 +1,7 @@
 
 const CitizenMapper = (citizen)=>({
+    id:citizen._id,
+    uid:citizen.uid,
     name:citizen.name,
     email:citizen.email,
     phonesuffix:citizen.phonesuffix,

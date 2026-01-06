@@ -5,7 +5,9 @@ const CitizenSchema = mongoose.Schema({
     name:{type:String,required:true},
     email:{type:String,required:true},
     uid:{type:String,default:""},
-    password:{type:String,required:true},
+    password:{type:String,required:function(){
+        return this.type === "local";
+    }},
     phonesuffix:{type:String,default:""},
     phonenumber:{type:String, default:""},
     address:{type:String,default:""},

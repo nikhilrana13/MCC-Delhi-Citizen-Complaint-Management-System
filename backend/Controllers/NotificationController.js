@@ -1,6 +1,7 @@
 const Citizen = require("../Models/CitizenModel");
 const McModel = require("../Models/McModel");
 const Notification = require("../Models/NotificationModel");
+const Response = require("../Utils/ResponseHandler");
 
 
 
@@ -11,8 +12,8 @@ const SaveFCMToken = async(req,res)=>{
     try {
          const userId = req.user 
          const {token} = req.body;
-         const {role} = req.role 
-
+         const role = req.role 
+         // console.log("fcm token",token)
          if(!token){
             return Response(res,400,"FCM token is required")
          }
