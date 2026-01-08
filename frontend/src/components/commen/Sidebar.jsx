@@ -1,6 +1,7 @@
 "use client"
+import useLogout from '../../hooks/useLogout'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
 import { IoIosNotifications, IoIosSettings } from 'react-icons/io'
 import { IoLogOut } from 'react-icons/io5'
@@ -10,6 +11,7 @@ import { TbNotes } from 'react-icons/tb'
 
 const Sidebar = () => {
   const pathname = usePathname()
+  const {handleLogout} = useLogout()
 
   const navlink = (path)=>{
            return `${pathname === path ? "bg-[#0A3D62] text-white px-3 py-3  rounded-md  flex items-center gap-2" : "px-3 py-3  hover:text-[#0A3D62] text-[#707785] hover:bg-[#E9EEF2] rounded-md "}`
@@ -50,7 +52,7 @@ const Sidebar = () => {
           </Link>
       </div>
        <div className='border-t  border-gray-300 px-6 cursor-pointer py-5 mt-65'>
-         <span className='flex hover:text-[#0A3D62] rounded-md cursor-pointer px-3 py-3 text-[#707785] hover:bg-[#E9EEF2] gap-2'>
+         <span onClick={handleLogout} className='flex hover:text-[#0A3D62] rounded-md cursor-pointer px-3 py-3 text-[#707785] hover:bg-[#E9EEF2] gap-2'>
          <IoLogOut size={25} />
             <span className='text-'>Logout</span>
          </span>

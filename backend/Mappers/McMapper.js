@@ -1,6 +1,6 @@
 const McMapper = (mc)=>({
     id:mc._id,
-    Mcname: mc.Mcname,
+    name: mc.Mcname,
     email: mc.email,
     role: mc.role,
     isVerified: mc.isVerified,
