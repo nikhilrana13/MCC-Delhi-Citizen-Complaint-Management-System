@@ -196,7 +196,7 @@ const page = () => {
               Recent Complaints
             </span>
             <Link
-              href="/"
+              href="/mcadmin/complaints"
               className="flex px-3 border rounded-md  font-semibold text-[0.8rem] items-center border-gray-300 text-[#0A3D62] py-2 gap-2"
             >
               View All <BsArrowRight />
@@ -229,7 +229,6 @@ const page = () => {
                     </TableCell>
                     <TableCell className="text-[#0A3D62]  px-4">
                        {complaint?.address?.map(add => `${add.location} (${add.zone})`).join(", ") || "NA"}
-                       
                     </TableCell>
                     <TableCell className="text-[#0A3D62] px-4">
                       {new Date(complaint?.createdAt).toLocaleDateString("en-US",{
