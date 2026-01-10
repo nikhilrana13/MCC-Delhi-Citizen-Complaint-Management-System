@@ -29,7 +29,7 @@ app.use(cookieParser())
 
 // create socket io server 
 const server = http.createServer(app)
-const io = initializeSocket(server)
+initializeSocket(server)
 
 
 

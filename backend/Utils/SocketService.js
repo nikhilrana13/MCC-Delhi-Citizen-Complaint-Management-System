@@ -4,7 +4,7 @@ const { Server } = require("socket.io")
 let io; 
 
 const initializeSocket = (server)=>{
-    const io = new Server(server,{
+     io = new Server(server,{
         cors:{
             origin:process.env.NEXT_FRONTEND_URL,
             credentials:true,

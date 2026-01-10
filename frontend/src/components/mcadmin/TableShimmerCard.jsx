@@ -1,12 +1,12 @@
 "use client"
-const ComplaintsTableShimmer = ({ rows = 2 }) => {
+const ComplaintsTableShimmer = ({ rows = 5 }) => {
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full border-collapse">
         {/* Header */}
         <thead>
           <tr className="bg-[#E9EEF4]">
-            {["ID", "CATEGORY", "AREA", "DATE", "STATUS"].map((_, i) => (
+            {["ID", "CATEGORY", "AREA", "CITIZEN NAME" ,"DATE", "STATUS","ACTION"].map((_, i) => (
               <th key={i} className="px-4 py-5">
                 <div className="h-4 w-20 bg-gray-300 rounded animate-pulse"></div>
               </th>
@@ -30,7 +30,13 @@ const ComplaintsTableShimmer = ({ rows = 2 }) => {
               <td className="px-4">
                 <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
               </td>
-              <td className="px-4 text-right">
+              <td className="px-4">
+                <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse ml-auto"></div>
+              </td>
+               <td className="px-4">
+                <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse ml-auto"></div>
+              </td>
+                <td className="px-4">
                 <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse ml-auto"></div>
               </td>
             </tr>

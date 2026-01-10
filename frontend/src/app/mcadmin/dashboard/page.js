@@ -90,9 +90,7 @@ const page = () => {
       } catch (error) {
         console.log("failed to fetch complaints", error);
       } finally {
-        setTimeout(() => {
-          setTableloading(false)
-        }, 3000);
+        setTableloading(false)
       }
     };
     fetchComplaints();
@@ -220,7 +218,7 @@ const page = () => {
               </TableHeader>
               <TableBody>
                 {complaints?.slice(0,5).map((complaint) => (
-                  <TableRow key={complaint?._id} className="border-b border-gray-300">
+                  <TableRow key={complaint?._id} className="border-b bg-white! border-gray-300">
                     <TableCell className="font-semibold text-[#0A3D62] px-4 py-6">
                      #CMP-{complaint?._id.slice(-6) || "NA"}
                     </TableCell>

@@ -4,6 +4,7 @@ const Response = require("../Utils/ResponseHandler");
 
 const AuthMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
+  // console.log("token",authHeader)
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return Response(res, 401, "Unauthorized: Token missing");
@@ -15,6 +16,7 @@ const AuthMiddleware = (req, res, next) => {
 
     req.user = decoded.id;
     req.role = decoded.role;
+    // console.log("req.user",req.role)
 
     next();
   } catch (error) {

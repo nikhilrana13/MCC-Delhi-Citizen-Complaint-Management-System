@@ -186,12 +186,19 @@ const FetchAllComplaints = async (req, res) => {
       return Response(res, 404, "Mc Admin not found");
     }
     let filters = { mcId: mcId };
-    if (category) {
-      filters.category = category;
+    // only apply filters when not all
+    if(category && category !== "all"){
+         filters.category = category
     }
-    if (status) {
-      filters.status = status;
+    if(status && status !== "all"){
+       filters.status = status
     }
+    // if (category) {
+    //   filters.category = category;
+    // }
+    // if (status) {
+    //   filters.status = status;
+    // }
     const complaints = await Complaint.find(filters)
       .skip(skip)
       .limit(limitNumber)
