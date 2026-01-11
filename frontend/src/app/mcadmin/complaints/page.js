@@ -72,6 +72,7 @@ const page = () => {
               status: status,
               category: category,
               page: page,
+              limit:10,
             },
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -79,7 +80,7 @@ const page = () => {
             withCredentials: true,
           }
         );
-        console.log("response", response.data);
+        // console.log("response", response.data);
         if (response.data) {
           setComplaints(response?.data?.data?.complaints);
           setPagination(response?.data?.data?.pagination);
@@ -97,29 +98,9 @@ const page = () => {
 
   const start = (pagination?.currentPage - 1) * pagination.limit + 1;
   const end = Math.min(
-    pagination?.currentPage * pagination.limit,
-    pagination.totalcomplaints
+    pagination?.currentPage * pagination?.limit,
+    pagination?.totalcomplaints
   );
-
-  const updateStatuses = ["pending","review","progress","completed","cancelled",];
-   
- const handleComplaintStatusUpdate = async(id,updatestatus)=>{
-       try {
-           const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/complaint/update-status/${id}`,{status:updatestatus},{
-            headers:{
-              Authorization: `Bearer ${localStorage.getItem("token")}`
-            },withCredentials:true
-           })
-           if(response.data){
-             toast.success(response?.data?.message)
-             setComplaints((prevcomplaint)=> prevcomplaint.map((complaint)=> complaint._id === id ? {...complaint, status:updatestatus}:complaint))
-           }
-       } catch (error) {
-          console.log("failed to update status",error)
-          return toast.error(error?.response?.data?.message || "Internal server error")
-       }
- }
-
   return (
     <>
       <div className="flex px-4 items-center py-3 bg-white justify-between">
@@ -196,7 +177,6 @@ const page = () => {
                   <TableHead className="py-5 px-4">CITIZEN NAME</TableHead>
                   <TableHead className="py-5  px-4">CREATED DATE</TableHead>
                   <TableHead className="py-5 px-4">STATUS</TableHead>
-                  <TableHead className="py-5 px-4 ">ACTION</TableHead>
                   <TableHead className="py-5 px-4 ">VIEW</TableHead>
                 </TableRow>
               </TableHeader>
@@ -207,7 +187,7 @@ const page = () => {
                     className="border-b bg-white! border-gray-300"
                   >
                     <TableCell className="font-semibold text-[#0A3D62] px-4 py-6">
-                      #CMP-{complaint?._id.slice(-6) || "NA"}
+                      #CMP-{complaint?._id?.slice(1,6) || "NA"}
                     </TableCell>
                     <TableCell className="text-[#0A3D62] px-4">
                       {complaint?.category || "NA"}
@@ -248,31 +228,6 @@ const page = () => {
                       >
                         {complaint?.status}
                       </span>
-                    </TableCell>
-                    {/* update status */}
-                    <TableCell className="text-[#0A3D62]  px-4">
-                      <Select onValueChange={(value) => handleComplaintStatusUpdate(complaint?._id,value)} value={complaint?.status}>
-                        <SelectTrigger className="w-[180]px">
-                          <SelectValue placeholder="Update" />
-                        </SelectTrigger> 
-
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Update</SelectLabel>
-                            {updateStatuses.map((status, index) => {
-                              return (
-                                <SelectItem
-                                  key={index}
-                                  className="cursor-pointer"
-                                  value={status}
-                                >
-                                  {status}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
                     </TableCell>
                     <TableCell className="text-[#0A3D62]  px-4">
                       <ComplaintDetailsDialog complaint={complaint} setComplaints={setComplaints} />

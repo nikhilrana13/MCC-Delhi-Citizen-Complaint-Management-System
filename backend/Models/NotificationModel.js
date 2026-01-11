@@ -7,7 +7,7 @@ const notificationSchema = mongoose.Schema({
     receiverRole:{type:String,enum:["citizen","mc"],required:true},
     title:{type:String,required:true},
     message:{type:String,required:true},
-    type:{type:String,enum:["complaint,status-update"],default:"complaint"},
+    type:{type:String,enum:["complaint","status-update"],default:"complaint"},
     isRead:{type:Boolean,default:false}
 },{timestamps:true})
 

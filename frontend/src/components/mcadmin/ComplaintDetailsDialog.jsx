@@ -14,10 +14,15 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Input } from "../../../components/ui/input";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 
 const ComplaintDetailsDialog = ({complaint,setComplaints})=> {
+     const [loading,setLoading] = useState(false)
+     const [assignedTo,setAssignedTo] = useState(complaint?.assignedTo)
 //    console.log("complaint",complaint)
+    //  hanlde status update
      const handleComplaintStatusUpdate = async(id,updatestatus)=>{
        try {
            const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/complaint/update-status/${id}`,{status:updatestatus},{
@@ -33,7 +38,8 @@ const ComplaintDetailsDialog = ({complaint,setComplaints})=> {
           console.log("failed to update status",error)
           return toast.error(error?.response?.data?.message || "Internal server error")
        }
- }
+      }
+
   const updateStatuses = ["pending","review","progress","completed","cancelled",];
   const updated = new Date(complaint?.updatedAt)
 //   const getValidImage = (img) => {
@@ -45,14 +51,15 @@ const ComplaintDetailsDialog = ({complaint,setComplaints})=> {
 //     return img;
 //   }
 // };
+// helper function to get valid image url 
 const getValidImage = (img) => {
   if (!img || typeof img !== "string") {
-    return "/unknownuser.webp";
+    return "/Noimage.svg";
   }
   // remove quotes if backend sent "undefined" / "null"
   const clean = img.trim().toLowerCase();
   if (clean === "" || clean === "undefined" || clean === "null") {
-    return "/unknownuser.webp";
+    return "/Noimage.svg";
   }
   //  If cloudinary or any absolute URL
   if (img.startsWith("http://") || img.startsWith("https://")) {
@@ -64,8 +71,32 @@ const getValidImage = (img) => {
   if (img.includes(".")) {
     return fullUrl;
   }
-  return "/unknownuser.webp";
+  return "/Noimage.svg";
 };
+
+// handle assigned complaint to 
+  const handleAssignedComplaintTo = async(id)=>{
+          if(!assignedTo){
+             return toast.error("Assigned officer name is required")
+          }
+            try {
+              setLoading(true)
+               const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/complaint/assign-complaint/${id}`,{assignedTo:assignedTo},{
+                 headers:{
+                   Authorization: `Bearer ${localStorage.getItem("token")}`
+                 },withCredentials:true
+               })
+               if(response.data){
+                toast.success(response?.data?.message)
+                setComplaints((prevcomplaint)=> prevcomplaint.map((complaint)=> complaint?._id === id ? {...complaint,assignedTo:assignedTo}: complaint))
+               }
+            } catch (error) {
+              console.log("failed to assign complaint",error)
+              return toast.error(error?.response?.data?.message || "Internal server error")
+            }finally{
+              setLoading(false)
+            }
+     }
   return (
     <Dialog>
         <DialogTrigger className="cursor-pointer" asChild>
@@ -80,10 +111,10 @@ const getValidImage = (img) => {
                 <div className="flex justify-between">
                     {/* left */}
                     <div className="flex flex-col gap-2">
-                        <h3 className="text-[#0A3D62]   text-[1rem] font-semibold ">Complaint #CMP-{complaint?._id.slice(0,7)}</h3>
+                        <h3 className="text-[#0A3D62]   text-[1rem] font-semibold ">Complaint #CMP-{complaint?._id?.slice(0,7)}</h3>
                         <span className="flex gap-1 text-[0.8rem] text-gray-500">
                             {/* Water Karol Bagh, Zone 3 Received on Oct 24, 2024 */}
-                            Category: {complaint?.category || "NA"} Address: {complaint?.address?.map((add)=> add.location) || "NA"} Zone: {complaint?.address.map((add)=> add.zone) || "NA"}
+                            Category: {complaint?.category || "NA"} Address: {complaint?.address?.map((add)=> add.location) || "NA"} Zone: {complaint?.address?.map((add)=> add.zone) || "NA"}
                         </span>
                         <div className="flex gap-1">
                         <span className={`px-2 py-1  ${complaint?.status === "completed" ? "bg-green-100 text-green-600" :complaint?.status === "pending"? "bg-yellow-100 text-yellow-600": complaint?.status === "review"? "bg-blue-100 text-blue-600": complaint?.status === "cancelled"? "bg-red-500 text-white": "bg-gray-300 text-black"}    rounded-full text-[0.7rem] font-semibold`}>
@@ -162,7 +193,21 @@ const getValidImage = (img) => {
                     </div>
                 </div>
                 <div className="flex flex-col items-center sm:flex-row gap-2">
-                    <TableCell className="text-[#0A3D62]  px-4">
+                    {
+                      complaint?.status === "completed" ? (
+                        <>
+                         <div className="flex items-center gap-2 ">
+                          <span className="text-[#0A3D62] whitespace-nowrap font-semibold text-[0.9rem]">Status:</span>
+                          <button className="px-3 py-2 bg-green-100 text-green-600  rounded-full text-xs font-semibold">Completed</button>
+                         </div>
+                         <div className="flex items-center p-2 gap-2 ">
+                        <label className="text-[#0A3D62] whitespace-nowrap font-semibold text-[0.9rem]">Assigned To:</label>
+                         <span className="text-[0.8rem] text-gray-500">{complaint?.assignedTo || "NA"}</span>
+                        </div>
+                    </>
+                      ):(
+                        <>
+                        <TableCell className="text-[#0A3D62]  px-4">
                       <Select onValueChange={(value) => handleComplaintStatusUpdate(complaint?._id,value)} >
                         <SelectTrigger>
                           <SelectValue placeholder="Status update" />
@@ -187,14 +232,16 @@ const getValidImage = (img) => {
                     </TableCell> 
                     <div className="flex items-center p-2 gap-2 ">
                         <label className="text-[#0A3D62] whitespace-nowrap font-semibold text-[0.9rem]">Assigned To:</label>
-                        <Input type="text" placeholder="e.g Amit singh" />
+                        <Input value={assignedTo}  onChange={(e)=> setAssignedTo(e.target.value)}  type="text" placeholder="e.g Amit singh" />
                     </div>
-                    <div >
-                    <button className="px-4 py-2 cursor-pointer  text-[0.8rem] rounded-md bg-[#0A3D62] text-white">
-                      Submit
+                    <div>
+                    <button onClick={()=>handleAssignedComplaintTo(complaint?._id)}  className="px-4 py-2 cursor-pointer  text-[0.8rem] rounded-md bg-[#0A3D62] text-white">
+                       {loading ? <Loader2 className="w-4 h-5 animate-spin mx-auto" /> : "Submit"}
                      </button>
                     </div>
-                   
+                    </>
+                    )
+                  }
                 </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 const express =  require("express")
 const router = express.Router()
 const multer = require("multer")
-const {CreateComplaint,EachCitizenComplaints, FetchAllComplaints, UpdateStatusofComplaint, CitizenComplaintsStatus, McadminComplaintsStatus} = require("../Controllers/ComplaintController")
+const {CreateComplaint,EachCitizenComplaints, FetchAllComplaints, UpdateStatusofComplaint, CitizenComplaintsStatus, McadminComplaintsStatus, AssignedComplaintTo} = require("../Controllers/ComplaintController")
 const IsCitizenAuth = require("../Middleware/IsCitizenAuth")
 const IsMcAdminAuth = require("../Middleware/IsMcAdminAuth")
 const AuthMiddleware = require("../Middleware/AuthMiddleware")
@@ -17,6 +17,7 @@ router.get("/citizen/status",AuthMiddleware,IsCitizenAuth,CitizenComplaintsStatu
 // McAdmin complaints routes
 router.get("/all-complaints",AuthMiddleware,IsMcAdminAuth,FetchAllComplaints)
 router.get("/mcadmin/status",AuthMiddleware,IsMcAdminAuth,McadminComplaintsStatus)
+router.put("/assign-complaint/:id",AuthMiddleware,IsMcAdminAuth,AssignedComplaintTo)
 router.put("/update-status/:id",AuthMiddleware,IsMcAdminAuth,UpdateStatusofComplaint)
 
 

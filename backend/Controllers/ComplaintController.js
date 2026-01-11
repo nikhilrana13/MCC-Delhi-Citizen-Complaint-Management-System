@@ -81,6 +81,7 @@ const CreateComplaint = async (req, res) => {
       receiverId: citizenId,
       receiverRole: "citizen",
       title: "Complaint Registered",
+      type:"complaint",
       message:
         "Your complaint has been registered successfully. It will be resolved within 48 hours.",
     });
@@ -103,8 +104,9 @@ const CreateComplaint = async (req, res) => {
     await Notification.create({
       complaintId: complaint._id,
       receiverId: Mcadmin._id,
-      receiverRole: "mc-admin",
+      receiverRole: "mc",
       title: "New Complaint Received",
+      type:"complaint",
       message:
         "A new complaint has been received. Please review and take action.",
     });
@@ -116,7 +118,7 @@ const CreateComplaint = async (req, res) => {
       "A new complaint has been received. Please review and take action.",
       {
         complaintId: complaint._id.toString(),
-        role: "mc-admin",
+        role: "mc",
       }
     );
     // mc admin push notification
@@ -247,7 +249,7 @@ const UpdateStatusofComplaint = async (req, res) => {
     }
     const complaint = await Complaint.findOneAndUpdate(
       { _id: complaintId, mcId: mcId },
-      { status: status },
+      { status: status,type:"status-update"},
       { new: true }
     );
     if (!complaint) {
@@ -290,11 +292,39 @@ const McadminComplaintsStatus = async(req,res)=>{
     }
 }
 
+const AssignedComplaintTo = async(req,res)=>{
+   try {
+        const mcId = req.user 
+        const complaintId = req.params.id;
+        const {assignedTo} = req.body; 
+        const io = getIO()
+        
+        const Mcadmin = await McModel.findById(mcId)
+        if(!Mcadmin){
+           return Response(res,404,"Mc Admin not found")
+        }
+        const complaint = await Complaint.findOneAndUpdate({_id:complaintId,mcId:mcId},{assignedTo:assignedTo,type:"status-update"},{new:true})
+        if(!complaint){
+           return Response(res,404,"Complaint not found")
+        }
+        // socket emit on Assigned to change
+        io.to(complaint?.citizenId?.toString()).emit("notification",{
+          title:"Complaint Assigned To",
+          message:`Your complaint has been assigned to "${assignedTo}".`
+        })
+        return Response(res,200,"Complaint assigned successfully",complaint)
+   } catch (error) {
+        console.error("failed to assign complaint",error)
+        return Response(res,500,"Internal server error")
+   }
+}
+
 module.exports = {
   CreateComplaint,
   EachCitizenComplaints,
   FetchAllComplaints,
   UpdateStatusofComplaint,
   CitizenComplaintsStatus,
-  McadminComplaintsStatus
+  McadminComplaintsStatus,
+  AssignedComplaintTo
 };

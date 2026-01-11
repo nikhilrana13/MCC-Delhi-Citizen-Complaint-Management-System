@@ -2,13 +2,10 @@
 import React from 'react'
 import { getFCMToken } from '../config/firebase'
 import axios from "axios"
-import socket from '../config/socket'
 
 const useAfterAuthSuccess = () => {
     const afterAuthSuccess = async(userId)=>{
         try {
-            // join socket room 
-            socket.emit("join",userId)
             // console.log("userid",userId)
             // get fcm token
             const token = await getFCMToken()

@@ -9,7 +9,7 @@ const Citizenlayout = ({children}) => {
             <Sidebar />
         </div>
         {/* right side  */}
-        <div className='w-full md:w-[80%] flex flex-col border'>
+        <div className='w-full md:w-[80%] flex min-h-screen flex-col border'>
             {children}
         </div>
     </div>
