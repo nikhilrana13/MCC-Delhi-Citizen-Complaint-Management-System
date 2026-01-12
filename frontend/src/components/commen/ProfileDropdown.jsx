@@ -53,7 +53,7 @@ const ProfileDropdown = ({ user }) => {
         <ul className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
           <li
             onClick={() => {
-              router.push("/citizen/profile");
+              router.push(`${user?.role === "mc" ? "/mcadmin/settings":"/citizen/settings"}`);
               setOpen(false);
             }}
             className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-100 cursor-pointer"

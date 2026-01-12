@@ -1,5 +1,5 @@
 
-const StatsCards = ({title,iconBg,iconColor,value,subColor,subtitle,Icon}) => {
+const StatsCards = ({title,iconBg,iconColor,value,Icon}) => {
   return (
       <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition"
               >
@@ -19,11 +19,6 @@ const StatsCards = ({title,iconBg,iconColor,value,subColor,subtitle,Icon}) => {
                 <h2 className="text-3xl font-bold text-gray-900 mt-4">
                   {value}
                 </h2>
-
-                {/* Subtitle */}
-                <p className={`text-sm mt-2 ${subColor}`}>
-                  {subtitle}
-                </p>
       </div>
   )
 };

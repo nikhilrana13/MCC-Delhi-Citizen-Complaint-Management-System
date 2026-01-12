@@ -14,6 +14,7 @@ const Sidebar = () => {
   const pathname = usePathname()
   const { handleLogout } = useLogout()
   const unreadCount = useSelector((state) => state.notification.unReadCount)
+  const user = useSelector((state)=> state.Auth.user)
 
   const navlink = (path) => {
     return `${pathname === path ? "bg-[#0A3D62] text-white px-3 py-3  rounded-md  flex items-center gap-2" : "px-3 py-3  hover:text-[#0A3D62] text-[#707785] hover:bg-[#E9EEF2] rounded-md "}`
@@ -27,20 +28,21 @@ const Sidebar = () => {
         <span className='text-[#18486B] font-semibold text-[0.8rem] md:text-[1.1rem]'>MCC Delhi</span>
       </div>
       <div className='flex flex-col pt-8 px-4  gap-5'>
-        <Link href="/mcadmin/dashboard" className={navlink("/mcadmin/dashboard")}>
+        <Link  href={` ${user?.role === "mc" ? '/mcadmin/dashboard' : '/citizen/dashboard' }`}  
+        className={`${user?.role === "mc" ? navlink("/mcadmin/dashboard"): navlink("/citizen/dashboard") }`}>
           <div className="flex items-center gap-4">
             <LuLayoutDashboard size={25} />
             <span className="transition-opacity font-medium duration-500">Dashboard</span>
 
           </div>
         </Link>
-        <Link href="/mcadmin/complaints" className={navlink("/mcadmin/complaints")}>
+        <Link href={` ${user?.role === "mc" ? '/mcadmin/complaints' : '/citizen/complaints' }`}  className={`${user?.role === "mc" ? navlink("/mcadmin/complaints"): navlink("/citizen/complaints") }`}  >
           <div className="flex items-center gap-4">
             <TbNotes size={25} />
             <span className="transition-opacity font-medium duration-500">Complaints</span>
           </div>
         </Link>
-        <Link href="/mcadmin/notification" className={navlink("/mcadmin/notification")}>
+        <Link  href={` ${user?.role === "mc" ? '/mcadmin/notification' : '/citizen/notification' }`} className={`${user?.role === "mc" ? navlink("/mcadmin/notification"): navlink("/citizen/notification") }`} >
           <div className="flex items-center relative gap-4">
             <IoIosNotifications size={25} />
             {unreadCount > 0 && (
@@ -51,7 +53,7 @@ const Sidebar = () => {
             <span className="transition-opacity font-medium duration-500">Notifications</span>
           </div>
         </Link>
-        <Link href="/mcadmin/settings" className={navlink("/mcadmin/settings")}>
+        <Link href={` ${user?.role === "mc" ? '/mcadmin/settings' : '/citizen/settings' }`} className={`${user?.role === "mc" ? navlink("/mcadmin/settings"): navlink("/citizen/settings") }`} >
           <div className="flex items-center gap-4">
             <IoIosSettings size={25} />
             <span className="transition-opacity font-medium duration-500">Settings</span>

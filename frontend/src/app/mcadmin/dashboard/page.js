@@ -151,7 +151,7 @@ const page = () => {
         {/* profile dropdown */}
         <ProfileDropdown user={user} />
       </div>
-      <div className="flex-1 flex-col px-4 no-scrollbar  py-3  overflow-y-auto">
+      <div className="flex-1  flex-col px-4 no-scrollbar  py-3  overflow-y-auto">
         {/* status cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {loading ? (
