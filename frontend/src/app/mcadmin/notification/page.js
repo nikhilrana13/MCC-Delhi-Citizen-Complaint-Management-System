@@ -13,7 +13,6 @@ const page = () => {
   const [notifcations,setNotifications] = useState([])
   const [loading,setLoading] = useState(false)
   const dispatch = useDispatch()
-
   // fetch notifications
   useEffect(()=>{
         const fetchNotifications = async()=>{
@@ -56,7 +55,6 @@ const page = () => {
              toast.success(response?.data?.message)
              setNotifications((prev)=> prev.map((n)=>({...n,isRead:true}) ))
              dispatch(MarkedAllread())
-             
           }
       } catch (error) {
         console.log("failed to marked read",error)

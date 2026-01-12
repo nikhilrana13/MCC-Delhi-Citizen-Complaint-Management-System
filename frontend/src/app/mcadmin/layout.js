@@ -41,7 +41,7 @@ const Mclayout = ({ children }) => {
   return (
     <div className="w-full flex flex-col agp-1 md:flex-row ">
       {/* left side */}
-      <div className="w-full md:w-[20%]  min-h-screen">
+      <div className="w-full md:w-[20%]">
         <Sidebar />
       </div>
       {/* right side  */}

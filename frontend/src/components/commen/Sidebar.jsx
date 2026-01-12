@@ -19,7 +19,7 @@ const Sidebar = () => {
     return `${pathname === path ? "bg-[#0A3D62] text-white px-3 py-3  rounded-md  flex items-center gap-2" : "px-3 py-3  hover:text-[#0A3D62] text-[#707785] hover:bg-[#E9EEF2] rounded-md "}`
   }
   return (
-    <div className='flex flex-col   bg-[#F0F4F8]'>
+    <div className='flex flex-col min-h-screen   bg-[#F0F4F8]'>
       <div className='flex items-center border-b border-gray-300 py-3 px-4 gap-3'>
         <div className='px-3 py-3 rounded-full bg-[#18486B] ' >
           <RiGovernmentLine size={25} className=' text-white' />
@@ -48,7 +48,6 @@ const Sidebar = () => {
                 {unreadCount}
               </span>
             )}
-
             <span className="transition-opacity font-medium duration-500">Notifications</span>
           </div>
         </Link>
@@ -59,7 +58,7 @@ const Sidebar = () => {
           </div>
         </Link>
       </div>
-      <div className='border-t  border-gray-300 px-6 cursor-pointer py-5 mt-65'>
+      <div className='border-t  border-gray-300 px-6 cursor-pointer py-5 md:mt-65'>
         <span onClick={handleLogout} className='flex hover:text-[#0A3D62] rounded-md cursor-pointer px-3 py-3 text-[#707785] hover:bg-[#E9EEF2] gap-2'>
           <IoLogOut size={25} />
           <span className='text-'>Logout</span>

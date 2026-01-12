@@ -49,7 +49,7 @@ const UpdateMcProfile = async(req,res)=>{
             return Response(res,400,"No fields provided to update")
         }
         const updateuser = await McModel.findByIdAndUpdate(mcId,{$set:updateData},{new:true})
-        return Response(res,200,"Profile update successfully",(McMapper(updateuser)))
+        return Response(res,200,"Profile update successfully",({user:McMapper(updateuser)}))
     } catch (error) {
         console.error("failed to update profile",error)
         return Response(res,500,"Internal server error")
