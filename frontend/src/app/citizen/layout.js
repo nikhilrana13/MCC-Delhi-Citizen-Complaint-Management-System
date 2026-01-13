@@ -1,7 +1,43 @@
+"use client"
+import { useDispatch, useSelector } from 'react-redux';
 import Sidebar from '../../components/commen/Sidebar'
-import React from 'react'
+import React, { useEffect } from 'react'
+import { addNotification } from '../../redux/NotificationSlice';
+import toast from 'react-hot-toast';
+import socket from '../../config/socket';
 
 const Citizenlayout = ({children}) => {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.Auth.user);
+  // console.log("userid",user.id)
+ 
+  useEffect(() => {
+    if (!socket || !user?.id) return;
+    // if already connected (reload case)
+    if (socket.connected) {
+    //   console.log("already connected → joining room");
+      socket.emit("join", user.id);
+    }
+    // future connects (first load / reconnect)
+    const handleConnect = () => {
+    //   console.log("socket connected:", socket.id);
+    //   console.log("joining room:", user.id);
+      socket.emit("join", user.id);
+    };
+    const handleNotification = (data) => {
+        // console.log("notification data",data)
+      toast.success(data.title);
+      dispatch(addNotification(data));
+    };
+    socket.on("connect", handleConnect);
+    socket.on("notification", handleNotification);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("notification", handleNotification);
+    };
+  }, [user]);
+
   return (
     <div className='w-full flex flex-col agp-1 md:flex-row '>
         {/* left side */}

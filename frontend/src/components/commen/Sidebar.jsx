@@ -13,7 +13,7 @@ import { useSelector } from 'react-redux'
 const Sidebar = () => {
   const pathname = usePathname()
   const { handleLogout } = useLogout()
-  const unreadCount = useSelector((state) => state.notification.unReadCount)
+  const unreadCount = useSelector((state)=> state.notification.unReadCount)
   const user = useSelector((state)=> state.Auth.user)
 
   const navlink = (path) => {
@@ -33,7 +33,6 @@ const Sidebar = () => {
           <div className="flex items-center gap-4">
             <LuLayoutDashboard size={25} />
             <span className="transition-opacity font-medium duration-500">Dashboard</span>
-
           </div>
         </Link>
         <Link href={` ${user?.role === "mc" ? '/mcadmin/complaints' : '/citizen/complaints' }`}  className={`${user?.role === "mc" ? navlink("/mcadmin/complaints"): navlink("/citizen/complaints") }`}  >

@@ -9,9 +9,10 @@ import { BsEye } from 'react-icons/bs'
 import { BiCheckCircle } from 'react-icons/bi'
 import StatsCards from '../../../components/mcadmin/StatsCards'
 import StatsCardShimmer from '../../../components/mcadmin/StatsCardsShimmer'
-import ServiceCards from '@/src/components/citizen/ServiceCards'
+import ServiceCards from '../../../components/citizen/ServiceCards'
 import Link from 'next/link'
-import ComplaintDetailCard from '@/src/components/citizen/ComplaintDetailCard'
+import ComplaintDetailCard from '../../../components/citizen/ComplaintDetailCard'
+import ComplaintCardShimmer from '../../../components/citizen/ComplaintCardShimmer'
 
 const page = () => {
   const user = useSelector((state)=> state.Auth.user)
@@ -120,12 +121,13 @@ const page = () => {
           subColor: "text-green-600",
         },
       ];
+      // console.log("complaints",complaints)
   return (
     <>
     <div className="flex px-4 items-center border-b py-3 bg-white justify-between">
         <div className='flex flex-col gap-1'>
            <span className="text-[#0A3D62]   text-[1.2rem] font-semibold ">
-          Welcome Back, Amit!
+          Welcome Back, {user?.name || "User"}
         </span>
          <p className='text-[0.8rem] font-medium text-gray-500'>Track your grivences or report a new civic issue today</p>
         </div>
@@ -171,8 +173,28 @@ const page = () => {
             <Link href="/citizen/complaints" className='text-[#0A3D62]   text-[0.8rem] font-semibold'>View all history</Link>
           </div>
           <div className='flex flex-col gap-4'>
-              <ComplaintDetailCard />
-              <ComplaintDetailCard />
+             {
+               tableLoading ? (
+                <>
+                 {[0,1,2].map((_,index)=>{
+                  return <ComplaintCardShimmer key={index} />
+                 })}
+                </>
+               ):complaints?.length > 0 ? (
+                 <>
+                  {complaints?.slice(0,3)?.map((complaint)=>{
+                    return (
+                      <ComplaintDetailCard key={complaint._id} complaint={complaint} />
+                    )
+                  })}
+                 </>
+               ):(
+                   <div className="py-10 text-center text-gray-400">
+                   No complaints found
+                   </div>
+               )
+             }
+              
           </div>
         </div>
     </div>

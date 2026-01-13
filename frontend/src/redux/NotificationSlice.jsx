@@ -1,11 +1,13 @@
+
+"use client"
+
+import persistReducer from "redux-persist/es/persistReducer";
+import sessionStorage from "redux-persist/es/storage/session";
+
 const { createSlice } = require("@reduxjs/toolkit");
 
 
-
-
-
-
-const notificationSlice = createSlice({
+export const notificationSlice = createSlice({
     name:"notification",
     initialState:{
         items:[],
@@ -25,4 +27,9 @@ const notificationSlice = createSlice({
 })
 
 export const {addNotification,MarkedAllread} = notificationSlice.actions
-export default notificationSlice.reducer
+const persistconfig = {
+    key:'notification',
+    storage:sessionStorage
+}
+
+export const persistedNotificationReducer = persistReducer(persistconfig,notificationSlice.reducer)

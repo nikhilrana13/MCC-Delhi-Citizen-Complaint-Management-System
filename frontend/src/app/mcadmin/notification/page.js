@@ -30,9 +30,7 @@ const page = () => {
           } catch (error) {
             console.log("failed to get notifications",error)
           }finally{
-            setTimeout(() => {
-              setLoading(false)
-            }, 3000);
+           setLoading(false)
             
           }
         }
@@ -61,6 +59,7 @@ const page = () => {
         toast.error(error?.response?.data?.message || "Internal server error")
       }
    }
+   
   return (
     <>
       <div className="flex px-4 items-center py-3 bg-white justify-between">

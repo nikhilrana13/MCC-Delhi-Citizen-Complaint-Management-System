@@ -3,7 +3,7 @@ import persistReducer from "redux-persist/es/persistReducer";
 import sessionStorage from "redux-persist/es/storage/session";
 import persistStore from "redux-persist/es/persistStore";
 import { AuthSlice } from "./AuthSlice";
-import notificationSlice from "./NotificationSlice"
+import { notificationSlice } from "./NotificationSlice";
 
 
 const userpersistconfig={
@@ -11,10 +11,15 @@ const userpersistconfig={
     storage:sessionStorage
 }
 
+const notificationpersistconfig={
+    key:'notification',
+    storage:sessionStorage
+}
+const notificationpersist  = persistReducer(notificationpersistconfig,notificationSlice.reducer)
 const persistconfiguser = persistReducer(userpersistconfig,AuthSlice.reducer)
 const rootReducer = combineReducers({
     Auth:persistconfiguser,
-    notification:notificationSlice
+    notification:notificationpersist
 })
 
 export const store = configureStore({

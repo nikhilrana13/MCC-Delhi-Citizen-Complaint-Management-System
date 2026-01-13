@@ -13,7 +13,7 @@ import {
 } from "../../../../components/ui/select";
 import Link from "next/link";
 import axios from "axios";
-import ComplaintsTableShimmer from "@/src/components/mcadmin/TableShimmerCard";
+import ComplaintsTableShimmer from "../../../components/mcadmin/TableShimmerCard";
 import {
   Table,
   TableBody,
@@ -29,9 +29,8 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-import toast from "react-hot-toast";
-import ComplaintDetailsDialog from "@/src/components/mcadmin/ComplaintDetailsDialog";
+} from "../../../../components/ui/pagination";
+import ComplaintDetailsDialog from "../../../components/mcadmin/ComplaintDetailsDialog";
 
 const page = () => {
   const user = useSelector((state) => state.Auth.user);
@@ -88,9 +87,7 @@ const page = () => {
       } catch (error) {
         console.log("failed to fetch complaints", error);
       } finally {
-        setTimeout(() => {
-          setloading(false);
-        }, 3000);
+       setloading(false)
       }
     };
     fetchComplaints();

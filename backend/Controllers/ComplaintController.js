@@ -136,24 +136,27 @@ const CreateComplaint = async (req, res) => {
 // Get each Citizen complaint's
 const EachCitizenComplaints = async (req, res) => {
   try {
-    const citizenId = req.user;
-    const user = await Citizen.findById(citizenId);
-    if (!user) {
-      return Response(res, 404, "User not found");
-    }
-    const complaints = await Complaint.find({ citizenId: citizenId }).sort({
-      createdAt: -1,
-    });
-    if (complaints.length === 0) {
-      return Response(res, 200, "No Complaints found", complaints);
-    }
-    return Response(res, 200, "Complaints found", complaints);
+     const citizenId = req.user 
+     const {status} = req.query 
+
+      const citizen = await Citizen.findById(citizenId)
+        if(!citizen){
+          return Response(res,404,"User not found")
+        }
+      let filters = {citizenId:citizenId}
+      if(status && status !== "all"){
+         filters.status = status
+      }  
+      const complaints = await Complaint.find(filters)
+      if(!complaints){
+        return Response(res,200,"No Complaints found",[])
+      }
+      return Response(res,200,"Complaints found",{complaints:complaints})
   } catch (error) {
     console.error("failed to get complaints", error);
     return Response(res, 500, "Internal server error");
   }
 };
-
 const CitizenComplaintsStatus = async(req,res)=>{
     try {
         const citizenId = req.user 
@@ -255,6 +258,16 @@ const UpdateStatusofComplaint = async (req, res) => {
     if (!complaint) {
       return Response(res, 404, "Complaint not found");
     }
+     // DB notification (citizen)
+    await Notification.create({
+      complaintId: complaint._id,
+      receiverId: complaint.citizenId,
+      receiverRole: "citizen",
+      title: "Complaint Status Updated",
+      type:"complaint",
+      message:
+        `Your complaint Id:${complaint?._id.toString().slice(0,6)} status has been updated to ${status} `,
+    });
     //socket emit on status change
     io.to(complaint?.citizenId?.toString()).emit("notification",{
         title: "Complaint Status Updated",

@@ -46,6 +46,22 @@ const fetchCitizenAllNotifications = async(req,res)=>{
         return Response(res,500,"Internal server error")
     }
 }
+const MarkReadCitizenNotifications = async(req,res)=>{
+   try {
+       const citizenId = req.user
+       const citizen = await Citizen.findById(citizenId)
+       if(!citizen){
+         return Response(res,404,"User Not found")
+       }
+       await Notification.updateMany(
+         {receiverId:citizenId,receiverRole:"citizen",isRead:false},{$set:{isRead:true}}
+      )
+       return Response(res,200,"All Notifications marked as read")
+   } catch (error) {
+      console.log("failed to marked notifications",error)
+      return Response(res,500,"Internal server error")
+   }
+}
 
 const fetchMcAdminAllnotifications = async(req,res)=>{
      try {
@@ -84,4 +100,4 @@ const MarkReadMcNotifications = async(req,res)=>{
    }
 }
 
-module.exports = {SaveFCMToken,fetchCitizenAllNotifications,fetchMcAdminAllnotifications,MarkReadMcNotifications}
+module.exports = {SaveFCMToken,fetchCitizenAllNotifications,fetchMcAdminAllnotifications,MarkReadMcNotifications,MarkReadCitizenNotifications}
