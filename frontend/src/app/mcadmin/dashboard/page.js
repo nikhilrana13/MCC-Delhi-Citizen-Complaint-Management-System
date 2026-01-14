@@ -143,7 +143,7 @@ const page = () => {
   const total = statsState.totalcomplaints || 0;
 
   return (
-    <>
+    <div className="flex flex-col">
       <div className="flex px-4 items-center py-3 bg-white justify-between">
         <span className="text-[#0A3D62]   text-[1.2rem] font-semibold ">
           Overview
@@ -151,7 +151,7 @@ const page = () => {
         {/* profile dropdown */}
         <ProfileDropdown user={user} />
       </div>
-      <div className="flex-1  flex-col px-4 no-scrollbar  py-3  overflow-y-auto">
+      <div className="flex flex-col px-4 py-3 ">
         {/* status cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {loading ? (
@@ -259,7 +259,7 @@ const page = () => {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

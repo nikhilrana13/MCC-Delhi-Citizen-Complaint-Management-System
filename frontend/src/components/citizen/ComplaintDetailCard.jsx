@@ -3,7 +3,7 @@ import { timeAgo } from '../commen/Helpers'
 
 const ComplaintDetailCard = ({complaint}) => {
   return (
-    <div className='w-full px-7 py-4 items-center rounded-md flex flex-col border border-gray-300 md:flex-row sm:justify-between bg-white'>
+    <div className='w-full px-7 py-4 gap-2 md:items-center rounded-md flex flex-col border border-gray-300 md:flex-row sm:justify-between bg-white'>
         <div className='flex flex-col gap-2'>
             <span className='text-[0.9rem] text-[#77859A] font-medium'>#CMP-{complaint?._id?.slice(0,7) || "NA"}</span>
             <span className='text-[1rem] text-[#1A334C] font-medium'>{complaint?.title || "NA"}</span>

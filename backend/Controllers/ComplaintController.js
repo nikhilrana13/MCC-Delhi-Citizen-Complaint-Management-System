@@ -266,7 +266,7 @@ const UpdateStatusofComplaint = async (req, res) => {
       title: "Complaint Status Updated",
       type:"complaint",
       message:
-        `Your complaint Id:${complaint?._id.toString().slice(0,6)} status has been updated to ${status} `,
+        `Your complaint Id:${complaint?._id.toString().slice(0,7)} status has been updated to ${status} `,
     });
     //socket emit on status change
     io.to(complaint?.citizenId?.toString()).emit("notification",{

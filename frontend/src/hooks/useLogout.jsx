@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { SetUser } from '../redux/AuthSlice'
 import socket from '../config/socket'
 import axios from 'axios'
+import { addNotification } from '../redux/NotificationSlice'
 
 const useLogout = () => {
     const dispatch = useDispatch()
@@ -21,6 +22,7 @@ const useLogout = () => {
                 toast.success(response?.data?.message)
                 localStorage.removeItem("token")
                 dispatch(SetUser(null))
+                dispatch(addNotification(null))
                 if(socket?.connected){
                   socket.disconnect()
                 }

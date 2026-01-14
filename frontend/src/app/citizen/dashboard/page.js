@@ -123,8 +123,8 @@ const page = () => {
       ];
       // console.log("complaints",complaints)
   return (
-    <>
-    <div className="flex px-4 items-center border-b py-3 bg-white justify-between">
+    <div className='flex flex-col '>
+    <div className="flex px-4  border-b py-3 bg-white justify-between">
         <div className='flex flex-col gap-1'>
            <span className="text-[#0A3D62]   text-[1.2rem] font-semibold ">
           Welcome Back, {user?.name || "User"}
@@ -134,7 +134,7 @@ const page = () => {
         {/* profile dropdown */}
         <ProfileDropdown user={user} />
     </div>
-    <div className="flex flex-col mt-2 px-4 no-scrollbar gap-5  py-3  overflow-y-auto">
+    <div className="flex flex-col mt-2 px-4  gap-5  py-3 ">
         {/* status cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {loading ? (
@@ -166,8 +166,8 @@ const page = () => {
            {/* cards */}
            <ServiceCards />
         </div>
-        {/* recent complaints */}
-        <div className='flex flex-col gap-4'>
+         {/* recent complaints */} 
+        <div className='flex flex-col px-4  mt-8  py-3 gap-4'>
           <div className='flex justify-between'>
             <span className='text-[#0A3D62]   text-[1rem] font-semibold'>Recent Complaints</span>
             <Link href="/citizen/complaints" className='text-[#0A3D62]   text-[0.8rem] font-semibold'>View all history</Link>
@@ -194,11 +194,11 @@ const page = () => {
                    </div>
                )
              }
-              
           </div>
-        </div>
+       </div>
     </div>
-    </>
+    
+    </div>
   )
 }
 

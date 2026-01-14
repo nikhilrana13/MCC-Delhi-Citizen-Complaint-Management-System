@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+html, body {
+  height: 100%;
+  margin: 0;
+}
 @custom-variant dark (&:is(.dark *));
 
 @layer utilities {
@@ -13,6 +17,7 @@
     scrollbar-width: none; /* Firefox */
   }
 }
+
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

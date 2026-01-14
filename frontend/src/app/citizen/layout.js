@@ -39,13 +39,13 @@ const Citizenlayout = ({children}) => {
   }, [user]);
 
   return (
-    <div className='w-full flex flex-col agp-1 md:flex-row '>
+    <div className='w-full min-h-screen flex flex-col agp-1 md:flex-row '>
         {/* left side */}
-        <div className='w-full md:w-[20%] border min-h-screen'>
+        <div className='w-full md:w-[20%] '>
             <Sidebar />
         </div>
         {/* right side  */}
-        <div className='w-full md:w-[80%] flex  bg-[#F5F7FA] h-[102vh]  flex-col border'>
+        <div className='w-full md:w-[80%] flex bg-[#F5F7FA]  h-screen overflow-y-auto flex-col border'>
             {children}
         </div>
     </div>
