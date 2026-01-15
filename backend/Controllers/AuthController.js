@@ -125,7 +125,7 @@ const jwt = require("jsonwebtoken")
          res.clearCookie("token",{httpOnly:true,secure:true,sameSite:"none"})
          return Response(res,200,"Logout successfully")
     } catch (error) {
-         console.error("failed to Logut",error)
+         console.error("failed to logout",error)
         return Response(res,500,"Internal server error")
     }
  }
