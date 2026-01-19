@@ -5,7 +5,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { SetUser } from '../redux/AuthSlice'
 import socket from '../config/socket'
 import axios from 'axios'
-import { addNotification } from '../redux/NotificationSlice'
+import { addNotification, MarkedAllread } from '../redux/NotificationSlice'
+import { persistor } from '../redux/Store'
 
 const useLogout = () => {
     const dispatch = useDispatch()
@@ -23,6 +24,9 @@ const useLogout = () => {
                 localStorage.removeItem("token")
                 dispatch(SetUser(null))
                 dispatch(addNotification(null))
+                dispatch(MarkedAllread())
+                // clear persisted notification data
+                persistor.purge()
                 if(socket?.connected){
                   socket.disconnect()
                 }

@@ -11,7 +11,7 @@ const storage = multer.memoryStorage()
 const upload = multer({storage})
 
 router.get("/profile",AuthMiddleware,IsCitizenAuth,GetCitizenProfile)
-router.put("/updateprofile",AuthMiddleware,IsCitizenAuth,upload.single("profileimage"),[body('email')
+router.put("/updateprofile",AuthMiddleware,IsCitizenAuth,upload.single("profilepic"),[body('email')
         .isEmail()
         .optional()
         .normalizeEmail()

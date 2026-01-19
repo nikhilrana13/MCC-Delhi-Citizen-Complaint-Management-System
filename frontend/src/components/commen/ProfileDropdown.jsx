@@ -26,10 +26,6 @@ const ProfileDropdown = ({ user }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-   
-
-
-  
   return (
     <div ref={dropdownRef} className="relative  w-max">
       {/* Toggle Button */}

@@ -6,11 +6,11 @@ const CitizenMapper = (citizen)=>({
     email:citizen.email,
     phonesuffix:citizen.phonesuffix,
     phonenumber:citizen.phonenumber,
-    profileimage:citizen.profilepic,
+    profilepic:citizen.profilepic,
+    address:citizen.address,
     complaints:citizen.mycomplaints,
     role:citizen.role,
     verified:citizen.isVerified,
     createdAt:citizen.createdAt
 })
-
 module.exports = CitizenMapper

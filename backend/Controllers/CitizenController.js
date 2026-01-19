@@ -72,7 +72,7 @@ const UpdateCitizenProfile = async (req, res) => {
       res,
       200,
       "Profile update successfully",
-      CitizenMapper(updateuser)
+      {user:CitizenMapper(updateuser)}
     );
   } catch (error) {
     console.error("failed to update profile", error);

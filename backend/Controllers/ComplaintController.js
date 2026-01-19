@@ -6,14 +6,13 @@ const Response = require("../Utils/ResponseHandler");
 const McModel = require("../Models/McModel");
 const Notification = require("../Models/NotificationModel");
 const sendPushNotification = require("../Config/sendPushNotification");
-const {getIO} = require("../Utils/SocketService.js")
-
-
+const { getIO } = require("../Utils/SocketService.js");
+const { getCitizenRoomId } = require("../Utils/getCitizenRoomId.js");
 
 // Citizen complaint api's
 const CreateComplaint = async (req, res) => {
   try {
-    const io = getIO()
+    const io = getIO();
     const citizenId = req.user;
     let { title, description, address, category } = req.body;
     // console.log("req body",req.body)
@@ -81,7 +80,7 @@ const CreateComplaint = async (req, res) => {
       receiverId: citizenId,
       receiverRole: "citizen",
       title: "Complaint Registered",
-      type:"complaint",
+      type: "complaint",
       message:
         "Your complaint has been registered successfully. It will be resolved within 48 hours.",
     });
@@ -96,17 +95,18 @@ const CreateComplaint = async (req, res) => {
       }
     );
     // socket citizen notification
-    io.to(citizenId.toString()).emit("notification",{
-        title:"Complaint Registered",
-        message:"Your complaint has been registered successfully. It will be resolved within 48 hours.",
-    })
+    io.to(citizenId.toString()).emit("notification", {
+      title: "Complaint Registered",
+      message:
+        "Your complaint has been registered successfully. It will be resolved within 48 hours.",
+    });
     // DB notification (admin)
     await Notification.create({
       complaintId: complaint._id,
       receiverId: Mcadmin._id,
       receiverRole: "mc",
       title: "New Complaint Received",
-      type:"complaint",
+      type: "complaint",
       message:
         "A new complaint has been received. Please review and take action.",
     });
@@ -122,10 +122,11 @@ const CreateComplaint = async (req, res) => {
       }
     );
     // mc admin push notification
-    io.to(Mcadmin._id.toString()).emit("notification",{
-        title:"New Complaint Received",
-        message:"A new complaint has been received. Please review and take action",
-    })
+    io.to(Mcadmin._id.toString()).emit("notification", {
+      title: "New Complaint Received",
+      message:
+        "A new complaint has been received. Please review and take action",
+    });
 
     return Response(res, 201, "Complaint Created Successfully", complaint);
   } catch (error) {
@@ -136,47 +137,59 @@ const CreateComplaint = async (req, res) => {
 // Get each Citizen complaint's
 const EachCitizenComplaints = async (req, res) => {
   try {
-     const citizenId = req.user 
-     const {status} = req.query 
+    const citizenId = req.user;
+    const { status } = req.query;
 
-      const citizen = await Citizen.findById(citizenId)
-        if(!citizen){
-          return Response(res,404,"User not found")
-        }
-      let filters = {citizenId:citizenId}
-      if(status && status !== "all"){
-         filters.status = status
-      }  
-      const complaints = await Complaint.find(filters)
-      if(!complaints){
-        return Response(res,200,"No Complaints found",[])
-      }
-      return Response(res,200,"Complaints found",{complaints:complaints})
+    const citizen = await Citizen.findById(citizenId);
+    if (!citizen) {
+      return Response(res, 404, "User not found");
+    }
+    let filters = { citizenId: citizenId };
+    if (status && status !== "all") {
+      filters.status = status;
+    }
+    const complaints = await Complaint.find(filters);
+    if (!complaints) {
+      return Response(res, 200, "No Complaints found", []);
+    }
+    return Response(res, 200, "Complaints found", { complaints: complaints });
   } catch (error) {
     console.error("failed to get complaints", error);
     return Response(res, 500, "Internal server error");
   }
 };
-const CitizenComplaintsStatus = async(req,res)=>{
-    try {
-        const citizenId = req.user 
-        const citizen = await Citizen.findById(citizenId)
-        if(!citizen){
-          return Response(res,404,"User not found")
-        }
-        const total = await Complaint.countDocuments({citizenId})
-        const pending= await Complaint.countDocuments({citizenId,status:"pending"})
-        const resolved = await Complaint.countDocuments({citizenId,status:"completed"})
-        const inprogress = await Complaint.countDocuments({citizenId,status:"progress"})
-
-        return Response(res,200,"Complaints status",{
-          total,pending,resolved,inprogress
-        })
-    } catch (error) {
-      console.error("failed to get complaints status",error)
-      return Response(res,500,"Internal server error")
+const CitizenComplaintsStatus = async (req, res) => {
+  try {
+    const citizenId = req.user;
+    const citizen = await Citizen.findById(citizenId);
+    if (!citizen) {
+      return Response(res, 404, "User not found");
     }
-}
+    const total = await Complaint.countDocuments({ citizenId });
+    const pending = await Complaint.countDocuments({
+      citizenId,
+      status: "pending",
+    });
+    const resolved = await Complaint.countDocuments({
+      citizenId,
+      status: "completed",
+    });
+    const inprogress = await Complaint.countDocuments({
+      citizenId,
+      status: "progress",
+    });
+
+    return Response(res, 200, "Complaints status", {
+      total,
+      pending,
+      resolved,
+      inprogress,
+    });
+  } catch (error) {
+    console.error("failed to get complaints status", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
 // Mc Admin complaint api's
 const FetchAllComplaints = async (req, res) => {
   try {
@@ -192,11 +205,11 @@ const FetchAllComplaints = async (req, res) => {
     }
     let filters = { mcId: mcId };
     // only apply filters when not all
-    if(category && category !== "all"){
-         filters.category = category
+    if (category && category !== "all") {
+      filters.category = category;
     }
-    if(status && status !== "all"){
-       filters.status = status
+    if (status && status !== "all") {
+      filters.status = status;
     }
     // if (category) {
     //   filters.category = category;
@@ -207,7 +220,7 @@ const FetchAllComplaints = async (req, res) => {
     const complaints = await Complaint.find(filters)
       .skip(skip)
       .limit(limitNumber)
-      .sort({createdAt:-1})
+      .sort({ createdAt: -1 })
       .populate("citizenId", "name email phonesuffix phonenumber ");
     const totalcomplaints = await Complaint.countDocuments(filters);
     const totalPages = Math.ceil(totalcomplaints / limitNumber);
@@ -232,7 +245,7 @@ const FetchAllComplaints = async (req, res) => {
 
 const UpdateStatusofComplaint = async (req, res) => {
   try {
-    const io = getIO()
+    const io = getIO();
     const mcId = req.user;
     const complaintId = req.params.id;
     const { status } = req.body;
@@ -252,27 +265,28 @@ const UpdateStatusofComplaint = async (req, res) => {
     }
     const complaint = await Complaint.findOneAndUpdate(
       { _id: complaintId, mcId: mcId },
-      { status: status,type:"status-update"},
+      { status: status, type: "status-update" },
       { new: true }
     );
     if (!complaint) {
       return Response(res, 404, "Complaint not found");
     }
-     // DB notification (citizen)
+    // DB notification (citizen)
     await Notification.create({
       complaintId: complaint._id,
       receiverId: complaint.citizenId,
       receiverRole: "citizen",
       title: "Complaint Status Updated",
-      type:"complaint",
-      message:
-        `Your complaint Id:${complaint?._id.toString().slice(0,7)} status has been updated to ${status} `,
+      type: "complaint",
+      message: `Your complaint Id:${complaint?._id
+        .toString()
+        .slice(0, 7)} status has been updated to ${status} `,
     });
     //socket emit on status change
-    io.to(complaint?.citizenId?.toString()).emit("notification",{
-        title: "Complaint Status Updated",
-        message: `Your complaint status has been updated to "${status}".`,
-    }) 
+    io.to(complaint?.citizenId?.toString()).emit("notification", {
+      title: "Complaint Status Updated",
+      message: `Your complaint status has been updated to "${status}".`,
+    });
     return Response(
       res,
       200,
@@ -284,53 +298,79 @@ const UpdateStatusofComplaint = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
-const McadminComplaintsStatus = async(req,res)=>{
-    try {
-        const mcId = req.user 
-        const mcadmin = await McModel.findById(mcId)
-        if(!mcadmin){
-          return Response(res,404,"User not found")
-        }
-        const total = await Complaint.countDocuments({mcId})
-        const pending= await Complaint.countDocuments({mcId,status:"pending"})
-        const resolved = await Complaint.countDocuments({mcId,status:"completed"})
-        const inprogress = await Complaint.countDocuments({mcId,status:"progress"})
-
-        return Response(res,200,"Complaints status",{
-          total,pending,resolved,inprogress
-        })
-    } catch (error) {
-      console.error("failed to get mc complaints status",error)
-      return Response(res,500,"Internal server error")
+const McadminComplaintsStatus = async (req, res) => {
+  try {
+    const mcId = req.user;
+    const mcadmin = await McModel.findById(mcId);
+    if (!mcadmin) {
+      return Response(res, 404, "User not found");
     }
-}
+    const total = await Complaint.countDocuments({ mcId });
+    const pending = await Complaint.countDocuments({ mcId, status: "pending" });
+    const resolved = await Complaint.countDocuments({
+      mcId,
+      status: "completed",
+    });
+    const inprogress = await Complaint.countDocuments({
+      mcId,
+      status: "progress",
+    });
 
-const AssignedComplaintTo = async(req,res)=>{
-   try {
-        const mcId = req.user 
-        const complaintId = req.params.id;
-        const {assignedTo} = req.body; 
-        const io = getIO()
-        
-        const Mcadmin = await McModel.findById(mcId)
-        if(!Mcadmin){
-           return Response(res,404,"Mc Admin not found")
-        }
-        const complaint = await Complaint.findOneAndUpdate({_id:complaintId,mcId:mcId},{assignedTo:assignedTo,type:"status-update"},{new:true})
-        if(!complaint){
-           return Response(res,404,"Complaint not found")
-        }
-        // socket emit on Assigned to change
-        io.to(complaint?.citizenId?.toString()).emit("notification",{
-          title:"Complaint Assigned To",
-          message:`Your complaint has been assigned to "${assignedTo}".`
-        })
-        return Response(res,200,"Complaint assigned successfully",complaint)
-   } catch (error) {
-        console.error("failed to assign complaint",error)
-        return Response(res,500,"Internal server error")
-   }
-}
+    return Response(res, 200, "Complaints status", {
+      total,
+      pending,
+      resolved,
+      inprogress,
+    });
+  } catch (error) {
+    console.error("failed to get mc complaints status", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
+
+const AssignedComplaintTo = async (req, res) => {
+  try {
+    const mcId = req.user;
+    const complaintId = req.params.id;
+    const { assignedTo } = req.body;
+    const io = getIO();
+
+    const Mcadmin = await McModel.findById(mcId);
+    if (!Mcadmin) {
+      return Response(res, 404, "Mc Admin not found");
+    }
+    const complaint = await Complaint.findOneAndUpdate(
+      { _id: complaintId, mcId: mcId },
+      { assignedTo: assignedTo, type: "status-update" },
+      { new: true }
+    ).populate("citizenId", "_id");
+    if (!complaint) {
+      return Response(res, 404, "Complaint not found");
+    }
+    // console.log("ASSIGN emit to:", complaint.citizenId);
+    // create notification
+    await Notification.create({
+      complaintId: complaint._id,
+      receiverId: complaint.citizenId,
+      receiverRole: "citizen",
+      title: "Complaint Assigned To",
+      type: "complaint",
+      message: `Your complaint Id:${complaint?._id
+        .toString()
+        .slice(0, 7)} has been assigned to "${assignedTo}  `,
+    });
+
+    // socket emit on Assigned to change
+    io.to(getCitizenRoomId(complaint?.citizenId)).emit("notification", {
+      title: "Complaint Assigned To",
+      message: `Your complaint has been assigned to "${assignedTo}".`,
+    });
+    return Response(res, 200, "Complaint assigned successfully", complaint);
+  } catch (error) {
+    console.error("failed to assign complaint", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
 
 module.exports = {
   CreateComplaint,
@@ -339,5 +379,5 @@ module.exports = {
   UpdateStatusofComplaint,
   CitizenComplaintsStatus,
   McadminComplaintsStatus,
-  AssignedComplaintTo
+  AssignedComplaintTo,
 };

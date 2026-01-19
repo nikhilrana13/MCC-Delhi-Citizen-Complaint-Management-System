@@ -15,13 +15,13 @@ const Citizenlayout = ({children}) => {
     if (!socket || !user?.id) return;
     // if already connected (reload case)
     if (socket.connected) {
-    //   console.log("already connected → joining room");
+      // console.log("already connected → joining room");
       socket.emit("join", user.id);
     }
     // future connects (first load / reconnect)
     const handleConnect = () => {
-    //   console.log("socket connected:", socket.id);
-    //   console.log("joining room:", user.id);
+      // console.log("socket connected:", socket.id);
+      // console.log("joining room:", user.id);
       socket.emit("join", user.id);
     };
     const handleNotification = (data) => {

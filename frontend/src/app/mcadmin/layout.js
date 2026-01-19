@@ -20,8 +20,8 @@ const Mclayout = ({ children }) => {
     }
     // future connects (first load / reconnect)
     const handleConnect = () => {
-    //   console.log("socket connected:", socket.id);
-    //   console.log("joining room:", user.id);
+      // console.log("socket connected:", socket.id);
+      // console.log("joining room:", user.id);
       socket.emit("join", user.id);
     };
     const handleNotification = (data) => {
