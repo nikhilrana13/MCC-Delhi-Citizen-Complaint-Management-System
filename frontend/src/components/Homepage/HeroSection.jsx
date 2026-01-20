@@ -5,8 +5,13 @@ import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import CountUp from "react-countup";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const HeroSection = () => {
+  const user = useSelector((state)=>state.Auth.user)
+  const router = useRouter()
   return (
     <section className="w-full bg-[#F6FBFF] overflow-hidden">
       {/* HERO */}
@@ -34,13 +39,19 @@ const HeroSection = () => {
 
           {/* BUTTONS */}
           <div className="flex flex-wrap gap-4">
-            <Link
-              href="/citizen/createcomplaint"
+            <button 
+              onClick={()=>{
+                      if(!user){
+                        toast.error("Please login to Register a complaint");
+                      }else{
+                        router.replace("/citizen/createcomplaint")
+                      }
+                    }}
               aria-label="Register a civic complaint"
-              className="bg-[#0A3D62] text-white px-6 py-3 rounded-md font-semibold hover:bg-[#08304d] transition"
+              className="bg-[#0A3D62] cursor-pointer text-white px-6 py-3 rounded-md font-semibold hover:bg-[#08304d] transition"
             >
               Register a Complaint
-            </Link>
+            </button>
 
             <Link
               href="/track"

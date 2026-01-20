@@ -1,14 +1,28 @@
 "use client";
 import { useDispatch, useSelector } from "react-redux";
 import Sidebar from "../../components/commen/Sidebar";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import socket from "../../config/socket";
 import toast from "react-hot-toast";
 import { addNotification } from "../../redux/NotificationSlice";
+import { useRouter } from "next/navigation";
+import AuthLoader from "../../components/loaders/AuthLoader";
 
 const Mclayout = ({ children }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.Auth.user);
+  const token = localStorage.getItem("token")
+  const router = useRouter()
+  const [checkingAuth,setCheckingAuth] = useState(true)
+    // console.log("userid",user.id)
+  
+    useEffect(()=>{    
+    if(!token || user?.role !== "mc"){
+      router.replace("/auth")
+    }else{
+      setCheckingAuth(false)
+    }
+    },[token,user])
   // console.log("userid",user.id)
  
   useEffect(() => {
@@ -37,6 +51,13 @@ const Mclayout = ({ children }) => {
       socket.off("notification", handleNotification);
     };
   }, [user]);
+
+   // BLOCK UI until auth check finishes
+  if(checkingAuth){
+     return (
+        <AuthLoader />
+     )
+  }
 
   return (
     <div className="w-full flex  min-h-screen flex-col agp-1 md:flex-row ">

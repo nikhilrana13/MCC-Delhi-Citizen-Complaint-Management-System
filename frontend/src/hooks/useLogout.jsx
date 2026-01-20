@@ -23,7 +23,6 @@ const useLogout = () => {
                 toast.success(response?.data?.message)
                 localStorage.removeItem("token")
                 dispatch(SetUser(null))
-                dispatch(addNotification(null))
                 dispatch(MarkedAllread())
                 // clear persisted notification data
                 persistor.purge()

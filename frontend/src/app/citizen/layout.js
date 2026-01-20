@@ -1,15 +1,29 @@
 "use client"
 import { useDispatch, useSelector } from 'react-redux';
 import Sidebar from '../../components/commen/Sidebar'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { addNotification } from '../../redux/NotificationSlice';
 import toast from 'react-hot-toast';
 import socket from '../../config/socket';
+import { useRouter } from 'next/navigation';
+import AuthLoader from '../../components/loaders/AuthLoader';
+
 
 const Citizenlayout = ({children}) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.Auth.user);
+  const router = useRouter()
+  const [checkingAuth,setCheckingAuth] = useState(true)
   // console.log("userid",user.id)
+
+  useEffect(()=>{    
+    const token = localStorage.getItem("token")
+  if(!token || user?.role !== "citizen"){
+    router.replace("/auth")
+  }else{
+    setCheckingAuth(false)
+  }
+  },[user])
  
   useEffect(() => {
     if (!socket || !user?.id) return;
@@ -38,6 +52,12 @@ const Citizenlayout = ({children}) => {
     };
   }, [user]);
 
+  // BLOCK UI until auth check finishes
+  if(checkingAuth){
+     return (
+        <AuthLoader />
+     )
+  }
   return (
     <div className='w-full min-h-screen flex flex-col agp-1 md:flex-row '>
         {/* left side */}

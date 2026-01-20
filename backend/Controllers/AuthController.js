@@ -65,7 +65,7 @@ const jwt = require("jsonwebtoken")
              }
             // generate jwt
             const token = jwt.sign({id:user._id,role:user.role},process.env.JWT_SECRET_KEY,{expiresIn:"1d"})
-            res.cookie("token",token,{httpOnly:true,secure:false,sameSite:"none"})
+            res.cookie("token",token,{httpOnly:true,secure:true,sameSite:"none"})
             if(isMc){
                 user.isVerified = true
                 await user.save()
@@ -103,7 +103,7 @@ const jwt = require("jsonwebtoken")
             await user.save()
          // generate jwt
          const token = jwt.sign({id:user._id,role:user.role},process.env.JWT_SECRET_KEY,{expiresIn:"1d"})
-         res.cookie("token",token,{httpOnly:true,secure:false,sameSite:"none"})
+         res.cookie("token",token,{httpOnly:true,secure:true,sameSite:"none"})
          return Response(res,200,"Login successfully",{user:CitizenMapper(user),token}) 
     } catch (error) {
         console.error("failed to log in with google",error)

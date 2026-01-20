@@ -18,7 +18,6 @@ const page = () => {
         <ContactHeader />
         <ContactSection />
         <Footer />
-        
     </div>
   )
 }
