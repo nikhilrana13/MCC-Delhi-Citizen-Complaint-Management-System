@@ -14,6 +14,7 @@ import Link from 'next/link'
 import ComplaintDetailCard from '../../../components/citizen/ComplaintDetailCard'
 import ComplaintCardShimmer from '../../../components/citizen/ComplaintCardShimmer'
 
+
 const page = () => {
   const user = useSelector((state)=> state.Auth.user)
   const [loading, setloading] = useState(false);

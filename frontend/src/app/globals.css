@@ -5,6 +5,13 @@ html, body {
   height: 100%;
   margin: 0;
 }
+
+.input {
+  @apply w-full mt-1 rounded-md border border-gray-200 px-4 py-2 text-sm outline-none
+  bg-[#F9FAFB] focus:border-[#0A3D62] focus:ring-1 focus:ring-[#0A3D62];
+}
+
+
 @custom-variant dark (&:is(.dark *));
 
 @layer utilities {

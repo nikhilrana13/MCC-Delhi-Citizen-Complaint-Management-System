@@ -1,5 +1,20 @@
+
 import React from 'react'
 import Navbar from "../components/commen/Navbar"
+import HeroSection from '../components/Homepage/HeroSection'
+import ReportCategorySection from '../components/Homepage/ReportCategorySection'
+import WhyUseMCCSection from '../components/Homepage/WhyUseMccSection'
+import HowItWorksSection from '../components/Homepage/HowItWorksSection'
+import Footer from '../components/Homepage/Footer'
+
+
+
+
+
+export const metadata = {
+  title: "Report Civic Issues & Track Resolution",
+  description: "Register civic complaints and track resolution in real time.",
+};
 
 const Home = () => {
   return (
@@ -14,11 +29,16 @@ const Home = () => {
         </div>
         <Navbar />
         </header>
-       
         {/* hero section */}
-       <section className=''>
-
-       </section>
+        <HeroSection />
+        {/* RCS */}
+        <ReportCategorySection />
+        {/* why use mcc section  */}
+        <WhyUseMCCSection />
+        {/* how it works section */}
+        <HowItWorksSection />
+        {/* footer */}
+        <Footer />
     </div>
   )
 }
