@@ -32,7 +32,6 @@ const server = http.createServer(app)
 initializeSocket(server)
 
 
-
 // Routes
 app.use('/api/auth', authRoutes); 
 app.use('/api/complaint',complaintRoutes)
