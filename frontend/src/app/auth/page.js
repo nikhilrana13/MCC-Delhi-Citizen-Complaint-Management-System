@@ -5,7 +5,6 @@ import React from 'react'
 import { ArrowLeft } from 'lucide-react'
 
 const AuthPage = () => {
- 
   return (
     <>
      <div className='flex justify-start bg-[#f5f7fb]'>
